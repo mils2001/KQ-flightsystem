@@ -21,6 +21,7 @@ def signup():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
+    role = data.get('role', 'user')  # Default role is 'user'
 
     if not username or not password:
         return jsonify({'message': 'Username and password required'}), 400
@@ -30,7 +31,8 @@ def signup():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (username, password_hash) VALUES (%s, %s)", (username, hashed_password))
+        cursor.execute("INSERT INTO users (username, password_hash, role) VALUES (%s, %s, %s)",
+                       (username, hashed_password, role))
         conn.commit()
         return jsonify({'message': 'User registered successfully'}), 201
     except mysql.connector.IntegrityError:
