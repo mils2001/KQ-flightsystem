@@ -29,20 +29,49 @@ def register():
         return jsonify(message='Username already exists'), 400
 
 @auth_bp.route('/login', methods=['POST'])
+@auth_bp.route('/auth/login', methods=['POST'])
 def login():
     data = request.get_json()
     username = data.get('username')
-    password = data.get('password')
+    password = data.get('password')  # This is fine — it's from the user input
 
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
-    user = cursor.fetchone()
-    conn.close()
+    if not username or not password:
+        return jsonify({'message': 'Username and password required'}), 400
 
-    if user and check_password_hash(user['password'], password):
-        access_token = create_access_token(identity=username, expires_delta=datetime.timedelta(hours=1))
-        return jsonify(access_token=access_token), 200
-    else:
-        return jsonify(message='Invalid credentials'), 401
+    try:
+        conn = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='your_mysql_password',
+            database='kenya_airways'
+        )
+        cursor = conn.cursor(dictionary=True)
+
+        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
+        user = cursor.fetchone()
+
+        if not user:
+            return jsonify({'message': 'User not found'}), 404
+
+        # Now check against the `password_hash` column in the DB
+        if not check_password_hash(user['password_hash'], password):
+            return jsonify({'message': 'Invalid password'}), 401
+
+        # Generate JWT Token
+        token = jwt.encode({
+            'user_id': user['id'],
+            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+        }, app.config['SECRET_KEY'], algorithm='HS256')
+
+        return jsonify({'token': token, 'message': 'Login successful'})
+
+    except mysql.connector.Error as err:
+        return jsonify({'error': str(err)}), 500
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
+  
 
