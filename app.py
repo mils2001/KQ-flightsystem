@@ -73,7 +73,6 @@ def book_flight(flight_id):
     user = get_jwt_identity()
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
-
     cursor.execute('SELECT seats_available FROM flights WHERE id = %s', (flight_id,))
     flight = cursor.fetchone()
     if not flight:
