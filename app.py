@@ -3,6 +3,10 @@ from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from db import get_db_connection, create_tables
 from auth import auth_bp
 import mysql.connector
+from dashboard import dashboard_bp 
+
+
+
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'be1b10ff40bf0e4b09b5fb05d8e7df07f6011b96c1b987b0a3875704d622f980'
@@ -17,6 +21,13 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 def dashboard():
     current_user = get_jwt_identity()
     return jsonify(message=f"Welcome {current_user}!"), 200
+
+app = Flask(__name__)
+app.register_blueprint(auth_bp, url_prefix='/auth')
+app.register_blueprint(dashboard_bp)  # 👈 register here
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 # -------------------- FLIGHTS --------------------
 
