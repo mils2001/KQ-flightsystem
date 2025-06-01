@@ -4,6 +4,8 @@ from db import get_db_connection, create_tables
 from auth import auth_bp
 import mysql.connector
 from dashboard import dashboard_bp 
+from admin_routes import admin_bp
+
 
 
 
@@ -115,6 +117,7 @@ def cancel_booking(flight_id):
         conn.close()
         return jsonify(message="No booking found"), 404
 
+app.register_blueprint(admin_bp)
 # -------------------- INIT --------------------
 
 if __name__ == '__main__':

@@ -64,10 +64,12 @@ def login():
         if not check_password_hash(user['password_hash'], password):
             return jsonify({'message': 'Invalid password'}), 401
 
+        # JWT payload with role included
         payload = {
             'user_id': user['id'],
             'username': user['username'],
-            'sub': user['username'],  # Add 'sub' claim
+            'role': user['role'],  # Include role in token
+            'sub': user['username'],
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
         }
 
