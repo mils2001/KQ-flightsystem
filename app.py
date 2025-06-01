@@ -1,11 +1,12 @@
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
-from db import get_db_connection, create_tables
+from db import get_db_connection, create_tables,close_db  # Use the right names
 from auth import auth_bp
 import mysql.connector
 from dashboard import dashboard_bp 
 from admin_routes import admin_bp
-
+from flights import flights_bp
+from booking import booking_bp
 
 
 
@@ -118,6 +119,9 @@ def cancel_booking(flight_id):
         return jsonify(message="No booking found"), 404
 
 app.register_blueprint(admin_bp)
+app.register_blueprint(flights_bp, url_prefix="/api")
+app.register_blueprint(booking_bp, url_prefix="/bookings")
+app.teardown_appcontext(close_db)
 # -------------------- INIT --------------------
 
 if __name__ == '__main__':

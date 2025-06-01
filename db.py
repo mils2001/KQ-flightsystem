@@ -1,42 +1,31 @@
+# db.py
+
 import mysql.connector
+from flask import g
 
 def get_db_connection():
-    return mysql.connector.connect(
-        host='localhost',
-        user='Awilo9701',
-        password='Awilo9701@',
-        database='kenya_airways'
-    )
+    if 'db' not in g:
+        g.db = mysql.connector.connect(
+            host="localhost",
+            user="Awilo9701",
+            password="Awilo9701@",
+            database="kenya_airways"
+        )
+    return g.db
+
+def close_db(e=None):
+    db = g.pop('db', None)
+    if db is not None:
+        db.close()
 
 def create_tables():
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    db = get_db_connection()
+    cursor = db.cursor()
 
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(50) NOT NULL UNIQUE,
-            password VARCHAR(255) NOT NULL
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS flights (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            route VARCHAR(100),
-            price DECIMAL(10,2),
-            seats_available INT,
-            rating FLOAT DEFAULT 0
-        )
-    ''')
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS bookings (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            user VARCHAR(50),
-            flight_id INT,
-            FOREIGN KEY (flight_id) REFERENCES flights(id)
-        )
-    ''')
-
-    conn.commit()
-    conn.close()
+    cursor.execute("""CREATE TABLE IF NOT EXISTS users (...);""")
+    cursor.execute("""CREATE TABLE IF NOT EXISTS flights (...);""")
+    cursor.execute("""CREATE TABLE IF NOT EXISTS bookings (...);""")
+    
+    db.commit()
+    cursor.close()
 
