@@ -62,11 +62,14 @@ def login():
         if not check_password_hash(user['password_hash'], password):
             return jsonify({'message': 'Invalid password'}), 401
 
-        token = jwt.encode({
+        payload = {
             'user_id': user['id'],
             'username': user['username'],
+            'sub': user['username'],  # Add 'sub' claim
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
-        }, SECRET_KEY, algorithm='HS256')
+        }
+
+        token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
         return jsonify({'token': token}), 200
 
