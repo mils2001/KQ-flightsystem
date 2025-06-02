@@ -4,6 +4,8 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 import datetime
+from jwt import ExpiredSignatureError, InvalidTokenError
+
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -37,23 +39,40 @@ def signup():
 
     return jsonify({"token": token})
 
+
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
-        if "Authorization" in request.headers:
-            token = request.headers["Authorization"].split(" ")[1]
-        
+        auth_header = request.headers.get("Authorization", None)
+
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+
         if not token:
             return jsonify({"message": "Token is missing!"}), 401
-        
+
         try:
+            # 🔐 Force conversion to string if needed
+            if isinstance(token, bytes):
+                token = token.decode("utf-8")
+
+            if not isinstance(token, str):
+                return jsonify({"message": "Token error: Expected a string"}), 401
+
+            # ✅ Decode the token
             data = jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
-            user_id = data["user_id"]
-        except:
-            return jsonify({"message": "Token is invalid!"}), 401
-        
+            user_id = data.get("user_id")
+
+        except jwt.ExpiredSignatureError:
+            return jsonify({"message": "Token has expired"}), 401
+        except jwt.InvalidTokenError as e:
+            return jsonify({"message": f"Invalid token: {str(e)}"}), 401
+        except Exception as e:
+            return jsonify({"message": f"Token error: {str(e)}"}), 401
+
         return f(user_id, *args, **kwargs)
+
     return decorated
 
 

@@ -1,34 +1,21 @@
-# routes/bookings.py
+# In routes/bookings.py
 from flask import Blueprint, request, jsonify
-from db import get_db_connection
-from auth import token_required  # 🔁 Import the JWT decorator
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 bookings_bp = Blueprint('bookings', __name__)
 
-@bookings_bp.route("/", methods=["POST"])
-@token_required
-def book_flight(user_id):
+@bookings_bp.route('/', methods=['POST'])
+@jwt_required()
+def create_booking():
+    current_user = get_jwt_identity()
     data = request.get_json()
-    flight_number = data["flight_number"]
-    seat_number = data["seat_number"]
-    seats_booked = data.get("seats_booked", 1)
+    flight_number = data.get("flight_number")
+    seat_number = data.get("seat_number")
+    seats_booked = data.get("seats_booked")
 
-    db = get_db_connection()
-    cursor = db.cursor()
+    # Your booking logic here
 
-    # Get passenger name from users table
-    cursor.execute("SELECT username FROM users WHERE id = %s", (user_id,))
-    user = cursor.fetchone()
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-
-    passenger_name = user[0]
-
-    cursor.execute(
-        "INSERT INTO bookings (user_id, flight_number, seat_number, passenger_name, seats_booked) VALUES (%s, %s, %s, %s, %s)",
-        (user_id, flight_number, seat_number, passenger_name, seats_booked)
-    )
-    db.commit()
-
-    return jsonify({"message": "Booking successful!"}), 201
+    return jsonify({
+        "message": f"Booking created for {flight_number}, seat {seat_number}, by user {current_user}"
+    }), 201
 

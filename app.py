@@ -6,17 +6,20 @@ from dashboard import dashboard_bp
 from admin_routes import admin_bp
 from flights import flights_bp
 from routes.bookings import bookings_bp
+from flask_jwt_extended import JWTManager
+
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'be1b10ff40bf0e4b09b5fb05d8e7df07f6011b96c1b987b0a3875704d622f980'
+app.config['JWT_TOKEN_LOCATION'] = ['headers']
 jwt = JWTManager(app)
-
 # Register Blueprints
 app.register_blueprint(auth_bp, url_prefix='/api')
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(flights_bp, url_prefix='/api')
-app.register_blueprint(bookings_bp, url_prefix="/api/bookings")
+app.register_blueprint(bookings_bp, url_prefix='/api/bookings')
+
 
 # Dashboard Test Route
 @app.route('/dashboard', methods=['GET'])
