@@ -1,7 +1,8 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint,request, jsonify, current_app
+import jwt
+from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
-import jwt
 import datetime
 
 auth_bp = Blueprint('auth', __name__)
@@ -15,33 +16,46 @@ def get_db_connection():
         password="Awilo9701@",
         database="kenya_airways"
     )
-
-@auth_bp.route('/signup', methods=['POST'])
+# In auth.py or similar
+@auth_bp.route("/signup", methods=["POST"])
 def signup():
     data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-    role = data.get('role', 'user')  # Default role is 'user'
+    username = data["username"]
+    email = data["email"]
+    password = bcrypt.generate_password_hash(data["password"]).decode("utf-8")
+    
+    db = get_db_connection()
+    cursor = db.cursor()
+    cursor.execute(
+        "INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)",
+        (username, email, password)
+    )
+    db.commit()
 
-    if not username or not password:
-        return jsonify({'message': 'Username and password required'}), 400
+    user_id = cursor.lastrowid
+    token = jwt.encode({"user_id": user_id, "username": username}, app.config["SECRET_KEY"], algorithm="HS256")
 
-    hashed_password = generate_password_hash(password)
+    return jsonify({"token": token})
 
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (username, password_hash, role) VALUES (%s, %s, %s)",
-                       (username, hashed_password, role))
-        conn.commit()
-        return jsonify({'message': 'User registered successfully'}), 201
-    except mysql.connector.IntegrityError:
-        return jsonify({'message': 'Username already exists'}), 409
-    except Exception as e:
-        return jsonify({'message': str(e)}), 500
-    finally:
-        cursor.close()
-        conn.close()
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if "Authorization" in request.headers:
+            token = request.headers["Authorization"].split(" ")[1]
+        
+        if not token:
+            return jsonify({"message": "Token is missing!"}), 401
+        
+        try:
+            data = jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
+            user_id = data["user_id"]
+        except:
+            return jsonify({"message": "Token is invalid!"}), 401
+        
+        return f(user_id, *args, **kwargs)
+    return decorated
+
 
 @auth_bp.route('/login', methods=['POST'])
 def login():

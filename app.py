@@ -12,11 +12,11 @@ app.config['JWT_SECRET_KEY'] = 'be1b10ff40bf0e4b09b5fb05d8e7df07f6011b96c1b987b0
 jwt = JWTManager(app)
 
 # Register Blueprints
-app.register_blueprint(auth_bp, url_prefix='/auth')
+app.register_blueprint(auth_bp, url_prefix='/api')
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(flights_bp, url_prefix='/api')
-app.register_blueprint(bookings_bp)
+app.register_blueprint(bookings_bp, url_prefix="/api/bookings")
 
 # Dashboard Test Route
 @app.route('/dashboard', methods=['GET'])
