@@ -5,7 +5,7 @@ from auth import auth_bp
 from dashboard import dashboard_bp
 from admin_routes import admin_bp
 from flights import flights_bp
-from booking import booking_bp
+from routes.bookings import bookings_bp
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'be1b10ff40bf0e4b09b5fb05d8e7df07f6011b96c1b987b0a3875704d622f980'
@@ -16,7 +16,7 @@ app.register_blueprint(auth_bp, url_prefix='/auth')
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(flights_bp, url_prefix='/api')
-app.register_blueprint(booking_bp, url_prefix='/bookings')
+app.register_blueprint(bookings_bp)
 
 # Dashboard Test Route
 @app.route('/dashboard', methods=['GET'])
