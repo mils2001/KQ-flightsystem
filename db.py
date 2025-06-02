@@ -1,5 +1,3 @@
-# db.py
-
 import mysql.connector
 from flask import g
 
@@ -22,10 +20,33 @@ def create_tables():
     db = get_db_connection()
     cursor = db.cursor()
 
-    cursor.execute("""CREATE TABLE IF NOT EXISTS users (...);""")
-    cursor.execute("""CREATE TABLE IF NOT EXISTS flights (...);""")
-    cursor.execute("""CREATE TABLE IF NOT EXISTS bookings (...);""")
-    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            username VARCHAR(100),
+            password_hash VARCHAR(255)
+        );
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS flights (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            route VARCHAR(255),
+            price DECIMAL(10,2),
+            seats_available INT,
+            rating DECIMAL(3,2)
+        );
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS bookings (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user VARCHAR(255),
+            flight_id INT,
+            FOREIGN KEY (flight_id) REFERENCES flights(id)
+        );
+    """)
+
     db.commit()
     cursor.close()
 
