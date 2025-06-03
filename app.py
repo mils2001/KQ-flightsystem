@@ -7,6 +7,8 @@ from admin_routes import admin_bp
 from flights import flights_bp
 from routes.bookings import bookings_bp
 from flask_jwt_extended import JWTManager
+from auth import token_required
+
 
 
 app = Flask(__name__)
@@ -20,6 +22,25 @@ app.register_blueprint(admin_bp)
 app.register_blueprint(flights_bp, url_prefix='/api')
 app.register_blueprint(bookings_bp, url_prefix='/api/bookings')
 
+# Other routes above...
+
+@app.route('/api/bookings', methods=['GET'])
+@token_required
+def get_bookings(current_user):
+    try:
+        conn = get_db_connection()
+        cur = conn.cursor(dictionary=True)
+
+        cur.execute("SELECT * FROM bookings WHERE user_id = %s", (current_user['id'],))
+        bookings = cur.fetchall()
+
+        cur.close()
+        conn.close()
+
+        return jsonify(bookings), 200
+
+    except Exception as e:
+        return jsonify({'message': f'Error fetching bookings: {str(e)}'}), 500
 
 # Dashboard Test Route
 @app.route('/dashboard', methods=['GET'])

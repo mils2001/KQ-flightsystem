@@ -1,15 +1,18 @@
-from flask import Blueprint,request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app
 import jwt
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 import datetime
 from jwt import ExpiredSignatureError, InvalidTokenError
-
+from flask_bcrypt import Bcrypt
 
 auth_bp = Blueprint('auth', __name__)
+bcrypt = Bcrypt()
 
+# Use this or set in app config
 SECRET_KEY = 'be1b10ff40bf0e4b09b5fb05d8e7df07f6011b96c1b987b0a3875704d622f980'
+
 
 def get_db_connection():
     return mysql.connector.connect(
@@ -18,14 +21,15 @@ def get_db_connection():
         password="Awilo9701@",
         database="kenya_airways"
     )
-# In auth.py or similar
+
+
 @auth_bp.route("/signup", methods=["POST"])
 def signup():
     data = request.get_json()
     username = data["username"]
     email = data["email"]
     password = bcrypt.generate_password_hash(data["password"]).decode("utf-8")
-    
+
     db = get_db_connection()
     cursor = db.cursor()
     cursor.execute(
@@ -35,33 +39,41 @@ def signup():
     db.commit()
 
     user_id = cursor.lastrowid
-    token = jwt.encode({"user_id": user_id, "username": username}, app.config["SECRET_KEY"], algorithm="HS256")
+    token = jwt.encode(
+        {"user_id": user_id, "username": username},
+        current_app.config.get("SECRET_KEY", SECRET_KEY),
+        algorithm="HS256"
+    )
+
+    cursor.close()
+    db.close()
 
     return jsonify({"token": token})
-
-
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = None
-        auth_header = request.headers.get("Authorization", None)
+        auth_header = request.headers.get("Authorization")
 
-        if auth_header and auth_header.startswith("Bearer "):
-            token = auth_header.split(" ")[1]
-
-        if not token:
-            return jsonify({"message": "Token is missing!"}), 401
+        if not auth_header:
+            return jsonify({"message": "Authorization header missing!"}), 401
 
         try:
-            # 🔐 Force conversion to string if needed
-            if isinstance(token, bytes):
-                token = token.decode("utf-8")
+            # Split header
+            parts = auth_header.split()
+            if len(parts) != 2 or parts[0].lower() != "bearer":
+                return jsonify({"message": "Invalid Authorization header format!"}), 401
 
+            token = parts[1]
+
+            # Debug print to console
+            print(f"[DEBUG] Received token: {token}, type: {type(token)}")
+
+            # Ensure token is a string (some Flask/Werkzeug versions give unicode or bytes)
             if not isinstance(token, str):
-                return jsonify({"message": "Token error: Expected a string"}), 401
+                token = token.decode("utf-8")  # Only if it's bytes
 
-            # ✅ Decode the token
-            data = jwt.decode(token, current_app.config["SECRET_KEY"], algorithms=["HS256"])
+            # Decode the token
+            data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
             user_id = data.get("user_id")
 
         except jwt.ExpiredSignatureError:
@@ -74,6 +86,8 @@ def token_required(f):
         return f(user_id, *args, **kwargs)
 
     return decorated
+
+
 
 
 @auth_bp.route('/login', methods=['POST'])
@@ -97,11 +111,10 @@ def login():
         if not check_password_hash(user['password_hash'], password):
             return jsonify({'message': 'Invalid password'}), 401
 
-        # JWT payload with role included
         payload = {
             'user_id': user['id'],
             'username': user['username'],
-            'role': user['role'],  # Include role in token
+            'role': user.get('role'),  # Use .get() in case role is null
             'sub': user['username'],
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
         }
@@ -112,6 +125,7 @@ def login():
 
     except Exception as e:
         return jsonify({'message': str(e)}), 500
+
     finally:
         cursor.close()
         conn.close()
