@@ -1,18 +1,16 @@
 from flask import Blueprint, request, jsonify, current_app
-import jwt
-from functools import wraps
-from werkzeug.security import generate_password_hash, check_password_hash
-import mysql.connector
-import datetime
-from jwt import ExpiredSignatureError, InvalidTokenError
+from werkzeug.security import check_password_hash
 from flask_bcrypt import Bcrypt
+from flask_jwt_extended import create_access_token, verify_jwt_in_request, get_jwt_identity
+from functools import wraps
+import jwt
+import datetime
+import mysql.connector
 
-auth_bp = Blueprint('auth', __name__)
+auth_bp = Blueprint('auth_blueprint', __name__)
 bcrypt = Bcrypt()
 
-# Use this or set in app config
 SECRET_KEY = 'be1b10ff40bf0e4b09b5fb05d8e7df07f6011b96c1b987b0a3875704d622f980'
-
 
 def get_db_connection():
     return mysql.connector.connect(
@@ -21,7 +19,6 @@ def get_db_connection():
         password="Awilo9701@",
         database="kenya_airways"
     )
-
 
 @auth_bp.route("/signup", methods=["POST"])
 def signup():
@@ -37,96 +34,58 @@ def signup():
         (username, email, password)
     )
     db.commit()
-
     user_id = cursor.lastrowid
-    token = jwt.encode(
-        {"user_id": user_id, "username": username},
-        current_app.config.get("SECRET_KEY", SECRET_KEY),
-        algorithm="HS256"
-    )
-
     cursor.close()
     db.close()
 
+    payload = {
+        "user_id": user_id,
+        "username": username,
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=2)
+    }
+    token = jwt.encode(payload, current_app.config.get("SECRET_KEY", SECRET_KEY), algorithm="HS256")
+    if isinstance(token, bytes):
+        token = token.decode("utf-8")
+
     return jsonify({"token": token})
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth_header = request.headers.get("Authorization")
-
-        if not auth_header:
-            return jsonify({"message": "Authorization header missing!"}), 401
-
-        try:
-            # Split header
-            parts = auth_header.split()
-            if len(parts) != 2 or parts[0].lower() != "bearer":
-                return jsonify({"message": "Invalid Authorization header format!"}), 401
-
-            token = parts[1]
-
-            # Debug print to console
-            print(f"[DEBUG] Received token: {token}, type: {type(token)}")
-
-            # Ensure token is a string (some Flask/Werkzeug versions give unicode or bytes)
-            if not isinstance(token, str):
-                token = token.decode("utf-8")  # Only if it's bytes
-
-            # Decode the token
-            data = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=["HS256"])
-            user_id = data.get("user_id")
-
-        except jwt.ExpiredSignatureError:
-            return jsonify({"message": "Token has expired"}), 401
-        except jwt.InvalidTokenError as e:
-            return jsonify({"message": f"Invalid token: {str(e)}"}), 401
-        except Exception as e:
-            return jsonify({"message": f"Token error: {str(e)}"}), 401
-
-        return f(user_id, *args, **kwargs)
-
-    return decorated
-
-
 
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    username = data.get('username')
+    email = data.get('email')
     password = data.get('password')
 
-    if not username or not password:
-        return jsonify({'message': 'Username and password required'}), 400
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
 
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM users WHERE username = %s", (username,))
-        user = cursor.fetchone()
+    if not user or not check_password_hash(user['password_hash'], password):
+        return jsonify({'error': 'Invalid email or password'}), 401
 
-        if not user:
-            return jsonify({'message': 'User not found'}), 404
+    user_id = user['id']
+    access_token = create_access_token(
+        identity=str(user_id),
+        additional_claims={"email": email}
+    )
 
-        if not check_password_hash(user['password_hash'], password):
-            return jsonify({'message': 'Invalid password'}), 401
+    return jsonify({"access_token": access_token}), 200
 
-        payload = {
-            'user_id': user['id'],
-            'username': user['username'],
-            'role': user.get('role'),  # Use .get() in case role is null
-            'sub': user['username'],
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=2)
-        }
 
-        token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')
 
-        return jsonify({'token': token}), 200
 
-    except Exception as e:
-        return jsonify({'message': str(e)}), 500
-
-    finally:
-        cursor.close()
-        conn.close()
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        try:
+            verify_jwt_in_request()
+            current_user = get_jwt_identity()
+            user_id = current_user["user_id"]
+        except Exception as e:
+            return jsonify({"message": "Token is invalid", "error": str(e)}), 401
+        return f(user_id, *args, **kwargs)
+    return decorated
 
