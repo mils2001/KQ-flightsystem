@@ -9,10 +9,19 @@ from routes.bookings import bookings_bp
 from dotenv import load_dotenv
 
 load_dotenv()
+from datetime import timedelta
+from routes.profile import profile_bp
+from routes.flights import flights_bp
+
+
+
+
+
 
 app = Flask(__name__)
 
 # JWT Configuration
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=365)  # 1 year
 app.config['JWT_SECRET_KEY'] = 'be1b10ff40bf0e4b09b5fb05d8e7df07f6011b96c1b987b0a3875704d622f980'
 app.config['SECRET_KEY'] = app.config['JWT_SECRET_KEY']
 app.config['JWT_TOKEN_LOCATION'] = ['headers']
@@ -23,8 +32,13 @@ jwt = JWTManager(app)
 app.register_blueprint(auth_bp, url_prefix='/api')
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(admin_bp)
-app.register_blueprint(flights_bp, url_prefix='/api')
+app.register_blueprint(flights_bp, url_prefix='/api')           # First for /api/flights
 app.register_blueprint(bookings_bp, url_prefix='/api/bookings')
+app.register_blueprint(profile_bp)
+app.register_blueprint(flights_bp, name='flights_root')         # Second, possibly for /
+
+
+
 
 # Dashboard route
 @app.route('/dashboard', methods=['GET'])
