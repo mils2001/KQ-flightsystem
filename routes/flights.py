@@ -34,7 +34,13 @@ def search_flights():
 
         cursor.execute(query, values)
         results = cursor.fetchall()
-        cursor.close()
+
+        # Convert time and date fields to string
+        for flight in results:
+            if 'flight_time' in flight and flight['flight_time']:
+                flight['flight_time'] = str(flight['flight_time'])
+            if 'flight_date' in flight and flight['flight_date']:
+                flight['flight_date'] = str(flight['flight_date'])
 
         return jsonify(results), 200
 
