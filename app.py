@@ -14,6 +14,8 @@ from datetime import timedelta
 from routes.profile import profile_bp
 from routes.flights import flights_bp
 from routes.profile import profile_bp
+from experience import experience_bp
+
 
 
 
@@ -40,7 +42,7 @@ app.register_blueprint(bookings_bp, url_prefix='/api/bookings')
 app.register_blueprint(profile_bp)
 app.register_blueprint(flights_bp, name='flights_root')         # Second, possibly for /
 profile_bp = Blueprint('user_profile', __name__)
-
+app.register_blueprint(experience_bp)
 
 
 
