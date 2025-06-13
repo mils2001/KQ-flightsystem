@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from db import get_db_connection, create_tables, close_db
+from flask import Flask, Blueprint
 from auth import auth_bp
 from dashboard import dashboard_bp
 from admin_routes import admin_bp
@@ -12,6 +13,8 @@ load_dotenv()
 from datetime import timedelta
 from routes.profile import profile_bp
 from routes.flights import flights_bp
+from routes.profile import profile_bp
+
 
 
 
@@ -36,6 +39,7 @@ app.register_blueprint(flights_bp, url_prefix='/api')           # First for /api
 app.register_blueprint(bookings_bp, url_prefix='/api/bookings')
 app.register_blueprint(profile_bp)
 app.register_blueprint(flights_bp, name='flights_root')         # Second, possibly for /
+profile_bp = Blueprint('user_profile', __name__)
 
 
 
