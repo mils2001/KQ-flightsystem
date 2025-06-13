@@ -6,8 +6,12 @@ from functools import wraps
 import jwt
 import datetime
 import mysql.connector
+from db import get_db_connection
+from flask_jwt_extended import jwt_required
+
 
 auth_bp = Blueprint('auth_blueprint', __name__)
+profile_bp = Blueprint('profile', __name__)
 bcrypt = Bcrypt()
 
 SECRET_KEY = 'be1b10ff40bf0e4b09b5fb05d8e7df07f6011b96c1b987b0a3875704d622f980'
@@ -89,3 +93,19 @@ def token_required(f):
         return f(user_id, *args, **kwargs)
     return decorated
 
+@profile_bp.route('/profile', methods=['GET'])
+@jwt_required()
+def get_profile():
+    user_id = get_jwt_identity()
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute("SELECT username, email, balance, profile_pic FROM users WHERE id = %s", (user_id,))
+    user = cursor.fetchone()
+    cursor.close()
+    conn.close()
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify(user), 200
