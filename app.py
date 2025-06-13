@@ -46,6 +46,7 @@ app.register_blueprint(experience_bp)
 
 
 
+
 # Dashboard route
 @app.route('/dashboard', methods=['GET'])
 @jwt_required()

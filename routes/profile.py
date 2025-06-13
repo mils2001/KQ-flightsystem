@@ -27,8 +27,7 @@ def get_profile():
 
     return jsonify({'profile': user}), 200
 
-# PUT update profile
-@profile_bp.route('/update', methods=['PUT'])
+@profile_bp.route('update', methods=['PUT'])
 @jwt_required()
 def update_profile():
     user_id = get_jwt_identity()
@@ -36,28 +35,30 @@ def update_profile():
 
     profile_pic = data.get('profile_pic')  # image URL or base64 string
     balance = data.get('balance')          # optional
+    phone_number = data.get('phone_number')  # new
 
-    if not profile_pic and balance is None:
+    if not profile_pic and balance is None and not phone_number:
         return jsonify({"error": "No update data provided"}), 400
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Build dynamic SQL query
-    update_query = "UPDATE users SET "
+    update_fields = []
     values = []
 
     if profile_pic:
-        update_query += "profile_pic = %s"
+        update_fields.append("profile_pic = %s")
         values.append(profile_pic)
 
     if balance is not None:
-        if profile_pic:
-            update_query += ", "
-        update_query += "balance = %s"
+        update_fields.append("balance = %s")
         values.append(balance)
 
-    update_query += " WHERE id = %s"
+    if phone_number:
+        update_fields.append("phone_number = %s")
+        values.append(phone_number)
+
+    update_query = f"UPDATE users SET {', '.join(update_fields)} WHERE id = %s"
     values.append(user_id)
 
     cursor.execute(update_query, tuple(values))
