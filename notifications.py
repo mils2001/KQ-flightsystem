@@ -1,35 +1,27 @@
-from twilio.rest import Client
 import os
+from dotenv import load_dotenv
+import vonage
 
-# Load Twilio credentials from environment variables (keep your .env secure!)
-TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
-TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
-TO_PHONE_NUMBER = os.getenv("USER_PHONE_NUMBER")  # Optional: Used for testing
+load_dotenv()
 
-# Initialize Twilio client
-client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+def send_booking_sms(to_number, flight_name, flight_time):
+    api_key = os.getenv("VONAGE_API_KEY")
+    api_secret = os.getenv("VONAGE_API_SECRET")
+    from_number = os.getenv("VONAGE_VIRTUAL_NUMBER")
 
-def send_booking_sms(to_phone, flight_name, flight_time):
-    try:
-        print(f"📲 Sending SMS to {to_phone}...")
+    client = vonage.Client(key=api_key, secret=api_secret)
+    sms = vonage.Sms(client)
 
-        message = client.messages.create(
-            body=f"🛫 Your booking for {flight_name} is confirmed! Departure at {flight_time}.",
-            from_=TWILIO_PHONE_NUMBER,
-            to=to_phone
-        )
+    text = f"Booking confirmed for {flight_name} at {flight_time}."
 
-        print(f"✅ SMS sent to {to_phone}. SID: {message.sid}")
+    responseData = sms.send_message({
+        "from": from_number,
+        "to": to_number,
+        "text": text,
+    })
 
-    except Exception as e:
-        print(f"❌ Error sending SMS to {to_phone}: {e}")
-
-
-# ✅ Optional: Run standalone to test SMS delivery
-if __name__ == "__main__":
-    if TO_PHONE_NUMBER:
-        send_booking_sms(TO_PHONE_NUMBER, "KQ123", "2025-06-15 13:30:00")
+    if responseData["messages"][0]["status"] == "0":
+        print("✅ Message sent successfully.")
     else:
-        print("❗ USER_PHONE_NUMBER not set in .env file.")
+        print("❌ Message failed:", responseData["messages"][0]["error-text"])
 

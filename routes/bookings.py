@@ -1,5 +1,4 @@
 from flask import Blueprint, request, jsonify
-from auth import token_required
 from db import get_db_connection
 from notifications import send_booking_sms
 from alarm_scheduler import schedule_alarm
@@ -7,6 +6,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 bookings_bp = Blueprint('bookings', __name__)
 
+# ✅ Create a booking
 @bookings_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_booking():
@@ -14,7 +14,7 @@ def create_booking():
     flight_number = data.get("flight_number")
     seat_number = data.get("seat_number")
     seats_booked = data.get("seats_booked")
-    user_id = get_jwt_identity()  # <-- make sure to get the user ID
+    user_id = get_jwt_identity()
 
     if not flight_number or not seat_number or not seats_booked:
         return jsonify({"error": "Missing booking details"}), 400
@@ -23,7 +23,6 @@ def create_booking():
     cursor = conn.cursor(dictionary=True)
 
     try:
-        # ✅ Corrected column name from departure_time → flight_time
         cursor.execute("SELECT flight_name, flight_time FROM flights WHERE flight_number = %s", (flight_number,))
         flight = cursor.fetchone()
 
@@ -41,15 +40,16 @@ def create_booking():
 
         user_phone = user["phone_number"]
 
-        # Insert booking
         cursor.execute("""
             INSERT INTO bookings (user_id, flight_number, seat_number, seats_booked)
             VALUES (%s, %s, %s, %s)
         """, (user_id, flight_number, seat_number, seats_booked))
         conn.commit()
 
-        # ✅ Trigger SMS and Alarm
+        # Send SMS and schedule alarm
+        message = f"Your flight '{flight_name}' is confirmed for {flight_time}."
         send_booking_sms(user_phone, flight_name, flight_time)
+
         schedule_alarm(user_phone, flight_name, flight_time)
 
         return jsonify({
@@ -64,12 +64,12 @@ def create_booking():
         conn.close()
 
 
-
-
 # ✅ Get all bookings for the logged-in user
 @bookings_bp.route('/', methods=['GET'])
-@token_required
-def get_bookings(user_id):
+@jwt_required()
+def get_bookings():
+    user_id = get_jwt_identity()
+
     conn = get_db_connection()
     cursor = conn.cursor(dictionary=True)
 
