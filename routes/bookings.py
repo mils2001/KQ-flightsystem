@@ -6,7 +6,6 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 bookings_bp = Blueprint('bookings', __name__)
 
-# ✅ Create a booking
 @bookings_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_booking():
@@ -46,11 +45,12 @@ def create_booking():
         """, (user_id, flight_number, seat_number, seats_booked))
         conn.commit()
 
-        # Send SMS and schedule alarm
-        message = f"Your flight '{flight_name}' is confirmed for {flight_time}."
-        send_booking_sms(user_phone, flight_name, flight_time)
+        # Convert time to string before scheduling
+        flight_time_str = str(flight_time)
 
-        schedule_alarm(user_phone, flight_name, flight_time)
+        # Send SMS and schedule alarm
+        send_booking_sms(user_phone, flight_name, flight_time_str)
+        schedule_alarm(user_phone, flight_name, flight_time_str)
 
         return jsonify({
             "message": f"Booking created successfully for flight {flight_number}, seat {seat_number}"
