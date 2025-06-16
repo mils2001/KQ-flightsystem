@@ -6,6 +6,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 bookings_bp = Blueprint('bookings', __name__)
 
+# ✅ Create a booking
 @bookings_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_booking():
@@ -31,13 +32,14 @@ def create_booking():
         flight_name = flight["flight_name"]
         flight_time = flight["flight_time"]
 
-        cursor.execute("SELECT phone_number FROM users WHERE id = %s", (user_id,))
+        cursor.execute("SELECT username, phone_number FROM users WHERE id = %s", (user_id,))
         user = cursor.fetchone()
 
         if not user or not user["phone_number"]:
             return jsonify({"error": "User phone number not found"}), 404
 
         user_phone = user["phone_number"]
+        username = user["username"]
 
         cursor.execute("""
             INSERT INTO bookings (user_id, flight_number, seat_number, seats_booked)
@@ -45,12 +47,12 @@ def create_booking():
         """, (user_id, flight_number, seat_number, seats_booked))
         conn.commit()
 
-        # Convert time to string before scheduling
-        flight_time_str = str(flight_time)
+        # ✅ Compose and send SMS
+        confirmation_message = f"Your flight '{flight_name}' is confirmed for {flight_time}."
+        send_booking_sms(user_phone, flight_name, flight_time, custom_message=confirmation_message)
 
-        # Send SMS and schedule alarm
-        send_booking_sms(user_phone, flight_name, flight_time_str)
-        schedule_alarm(user_phone, flight_name, flight_time_str)
+        # ✅ Schedule alarm with client's name
+        schedule_alarm(user_phone, flight_name, username)
 
         return jsonify({
             "message": f"Booking created successfully for flight {flight_number}, seat {seat_number}"

@@ -1,22 +1,25 @@
-# alarm_scheduler.py
-from datetime import datetime, timedelta
-import threading
 import time
+import threading
+import os
+from notifications import send_booking_sms
 
-def alarm_task(user_phone, flight_name, flight_time):
-    # Wait until the scheduled time
-    now = datetime.now()
-    delay = (flight_time - timedelta(hours=1) - now).total_seconds()
-    if delay > 0:
-        time.sleep(delay)
 
-    print(f"🔔 ALARM: Reminder for {user_phone} — Flight '{flight_name}' departs at {flight_time}.")
+def schedule_alarm(phone_number, flight_name, client_name):
+    def alarm_task():
+        print(f"⏳ Alarm scheduled. Will notify {phone_number} in 1 minute...")
+        time.sleep(60)
 
-def schedule_alarm(user_phone, flight_name, flight_time_str):
-    # Convert string to datetime
-    flight_time = datetime.strptime(flight_time_str, "%H:%M:%S")  # assuming format "HH:MM:SS"
-    flight_time = datetime.combine(datetime.today(), flight_time.time())
+        message = f"🔔 Don't forget your flight {client_name}, have a safe journey."
+        print(f"🔔 Reminder: {message} (sent to {phone_number})")
 
-    # Create a new thread for the alarm
-    threading.Thread(target=alarm_task, args=(user_phone, flight_name, flight_time)).start()
+        # Send SMS reminder
+        send_booking_sms(phone_number, flight_name, "", custom_message=message)
+
+        # Optional: Play alarm sound if on Linux
+        try:
+            os.system('play -n synth 1 sine 1000 vol 1.5')
+        except Exception as e:
+            print("Sound alert failed:", e)
+
+    threading.Thread(target=alarm_task).start()
 
