@@ -35,7 +35,7 @@ def search_flights():
         cursor.execute(query, values)
         results = cursor.fetchall()
 
-        # Convert time and date fields to string
+        # Convert time/date fields to string
         for flight in results:
             if 'flight_time' in flight and flight['flight_time']:
                 flight['flight_time'] = str(flight['flight_time'])
@@ -47,6 +47,14 @@ def search_flights():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+    finally:
+        cursor.close()
+        db.close()
+
+
+# =======================
+# BOOK FLIGHT ROUTE
+# =======================
 @flights_bp.route('/flights/book', methods=['POST'])
 @jwt_required()
 def book_flight():
@@ -59,10 +67,11 @@ def book_flight():
         return jsonify({'error': 'Flight number is required'}), 400
 
     user_id = get_jwt_identity()
-    db = get_db_connection()
-    cursor = db.cursor()
 
     try:
+        db = get_db_connection()
+        cursor = db.cursor()
+
         # Ensure flight exists
         cursor.execute("SELECT * FROM flights WHERE flight_number = %s", (flight_number,))
         flight = cursor.fetchone()
@@ -76,6 +85,7 @@ def book_flight():
         """, (user_id, flight_number, passenger_name, seats_booked))
 
         db.commit()
+
         return jsonify({
             'message': 'Booking successful',
             'flight_number': flight_number,
@@ -87,3 +97,5 @@ def book_flight():
 
     finally:
         cursor.close()
+        db.close()
+

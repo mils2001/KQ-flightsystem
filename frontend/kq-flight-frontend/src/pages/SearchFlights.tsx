@@ -1,99 +1,85 @@
 import React, { useState } from 'react';
 import { searchFlights } from '../services/flightService';
 
-interface Flight {
-  id: number;
-  flight_number: string;
-  route: string;
-  flight_class: string;
-  flight_date: string;
-  flight_time: string;
-  price: number;
-}
-
 const SearchFlights: React.FC = () => {
-  const [route, setRoute] = useState('');
-  const [date, setDate] = useState('');
-  const [classType, setClassType] = useState('');
-  const [flights, setFlights] = useState<Flight[]>([]);
+  const [formData, setFormData] = useState({
+    route: '',
+    date: '',
+    class_type: '',
+  });
+
+  const [results, setResults] = useState<any[]>([]);
   const [error, setError] = useState('');
 
-  const handleSearch = async () => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
     try {
-      const data = await searchFlights({ route, date, class_type: classType });
-      setFlights(data);
-      setError('');
+      const flights = await searchFlights(formData);
+      setResults(flights);
     } catch (err: any) {
-      console.error(err);
-      setError('Failed to fetch flights. Please check your token or try again.');
+      setError('Failed to fetch flights. Make sure you are logged in.');
     }
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-semibold mb-4">Search Flights</h2>
-
-      <div className="space-y-3 mb-4">
+    <div className="p-4 max-w-3xl mx-auto">
+      <h2 className="text-xl font-bold mb-4">🔍 Search Flights</h2>
+      
+      <form onSubmit={handleSearch} className="space-y-4">
         <input
           type="text"
-          placeholder="Route (e.g., Nairobi-Mombasa)"
-          value={route}
-          onChange={(e) => setRoute(e.target.value)}
-          className="border p-2 w-full rounded"
+          name="route"
+          placeholder="Enter Route (e.g. Nairobi-Mombasa)"
+          value={formData.route}
+          onChange={handleChange}
+          required
+          className="w-full border rounded p-2"
         />
-
         <input
           type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="border p-2 w-full rounded"
+          name="date"
+          value={formData.date}
+          onChange={handleChange}
+          className="w-full border rounded p-2"
         />
-
         <select
-          value={classType}
-          onChange={(e) => setClassType(e.target.value)}
-          className="border p-2 w-full rounded"
+          name="class_type"
+          value={formData.class_type}
+          onChange={handleChange}
+          className="w-full border rounded p-2"
         >
-          <option value="">Select Class</option>
+          <option value="">Select Class (optional)</option>
           <option value="Economy">Economy</option>
           <option value="Business">Business</option>
         </select>
 
-        <button
-          onClick={handleSearch}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Search
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
+          Search Flights
         </button>
-      </div>
+      </form>
 
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-red-500 mt-4">{error}</p>}
 
-      {flights.length > 0 && (
-        <table className="w-full border mt-4">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="p-2 border">Flight Number</th>
-              <th className="p-2 border">Route</th>
-              <th className="p-2 border">Class</th>
-              <th className="p-2 border">Date</th>
-              <th className="p-2 border">Time</th>
-              <th className="p-2 border">Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            {flights.map((flight) => (
-              <tr key={flight.id} className="text-center">
-                <td className="p-2 border">{flight.flight_number}</td>
-                <td className="p-2 border">{flight.route}</td>
-                <td className="p-2 border">{flight.flight_class}</td>
-                <td className="p-2 border">{flight.flight_date}</td>
-                <td className="p-2 border">{flight.flight_time}</td>
-                <td className="p-2 border">{flight.price}</td>
-              </tr>
+      {results.length > 0 && (
+        <div className="mt-6">
+          <h3 className="text-lg font-semibold mb-2">✈️ Results:</h3>
+          <ul className="space-y-3">
+            {results.map((flight, idx) => (
+              <li key={idx} className="border p-4 rounded shadow">
+                <p><strong>Flight:</strong> {flight.flight_number}</p>
+                <p><strong>Route:</strong> {flight.route}</p>
+                <p><strong>Date:</strong> {flight.flight_date}</p>
+                <p><strong>Time:</strong> {flight.flight_time}</p>
+                <p><strong>Class:</strong> {flight.flight_class}</p>
+              </li>
             ))}
-          </tbody>
-        </table>
+          </ul>
+        </div>
       )}
     </div>
   );

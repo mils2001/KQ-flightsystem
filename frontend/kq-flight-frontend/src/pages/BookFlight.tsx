@@ -2,68 +2,75 @@ import React, { useState } from 'react';
 import { bookFlight } from '../services/flightService';
 
 const BookFlight: React.FC = () => {
-  const [flightNumber, setFlightNumber] = useState('');
-  const [seatsBooked, setSeatsBooked] = useState(1);
-  const [passengerName, setPassengerName] = useState('');
+  const [formData, setFormData] = useState({
+    flight_number: '',
+    seats_booked: 1,
+    passenger_name: '',
+  });
+
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const handleBook = async () => {
-    setLoading(true);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: name === 'seats_booked' ? Number(value) : value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setMessage('');
     setError('');
-
     try {
-      const response = await bookFlight({
-        flight_number: flightNumber,
-        seats_booked: seatsBooked,
-        passenger_name: passengerName,
-      });
-
-      setMessage(response.message);
+      const response = await bookFlight(formData);
+      setMessage(`✅ ${response.message}`);
     } catch (err: any) {
-      setError('Booking failed. Make sure flight number is correct and token is valid.');
-    } finally {
-      setLoading(false);
+      setError('❌ Failed to book flight. Please check the details and try again.');
     }
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Book Flight</h2>
+    <div className="p-4 max-w-xl mx-auto">
+      <h2 className="text-xl font-bold mb-4">🛫 Book a Flight</h2>
 
-      <div className="flex flex-col gap-4 mb-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
         <input
-          className="p-2 border rounded"
+          type="text"
+          name="flight_number"
           placeholder="Flight Number (e.g., KQ123)"
-          value={flightNumber}
-          onChange={(e) => setFlightNumber(e.target.value)}
+          value={formData.flight_number}
+          onChange={handleChange}
+          required
+          className="w-full border rounded p-2"
         />
         <input
-          className="p-2 border rounded"
           type="number"
+          name="seats_booked"
           min="1"
-          value={seatsBooked}
-          onChange={(e) => setSeatsBooked(parseInt(e.target.value))}
+          value={formData.seats_booked}
+          onChange={handleChange}
+          required
+          className="w-full border rounded p-2"
         />
         <input
-          className="p-2 border rounded"
+          type="text"
+          name="passenger_name"
           placeholder="Passenger Name"
-          value={passengerName}
-          onChange={(e) => setPassengerName(e.target.value)}
+          value={formData.passenger_name}
+          onChange={handleChange}
+          required
+          className="w-full border rounded p-2"
         />
 
-        <button
-          className="bg-green-600 text-white py-2 rounded hover:bg-green-700"
-          onClick={handleBook}
-        >
-          {loading ? 'Booking...' : 'Book Now'}
+        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
+          Book Flight
         </button>
-      </div>
+      </form>
 
-      {message && <div className="text-green-600">{message}</div>}
-      {error && <div className="text-red-600">{error}</div>}
+      {message && <p className="text-green-600 mt-4">{message}</p>}
+      {error && <p className="text-red-600 mt-4">{error}</p>}
     </div>
   );
 };
