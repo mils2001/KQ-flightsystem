@@ -1,8 +1,11 @@
-const App = () => {
+// src/App.tsx
+import React from 'react';
+import Home from './pages/Home';
+
+const App: React.FC = () => {
   return (
-    <div className="p-8 text-center">
-      <h1 className="text-3xl font-bold">✈️ Welcome to Kenya Airways</h1>
-      <p className="mt-2 text-gray-600">Search, book and manage your flights with ease.</p>
+    <div>
+      <Home />
     </div>
   );
 };

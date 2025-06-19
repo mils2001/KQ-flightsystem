@@ -15,9 +15,12 @@ from routes.flights import flights_bp
 from routes.profile import profile_bp
 from routes.bookings import bookings_bp
 from experience import experience_bp
+from flask import Flask
+from flask_cors import CORS
 
-# Initialize Flask app
 app = Flask(__name__)
+CORS(app, origin=["http://localhost:5173"])  # This allows all origins by default
+
 
 # JWT Configuration
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=365)
