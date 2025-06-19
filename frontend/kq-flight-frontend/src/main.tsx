@@ -8,17 +8,13 @@ import App from './App';
 import SearchFlights from './pages/SearchFlights';
 import BookFlight from './pages/BookFlight';
 import Profile from './pages/Profile';
+import Navbar from './components/Navbar';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <Router>
       {/* Simple Navbar */}
-      <nav className="p-4 bg-gray-800 text-white flex gap-6 text-lg">
-        <Link to="/">Home</Link>
-        <Link to="/search">Search Flights</Link>
-        <Link to="/book">Book Flight</Link>
-        <Link to="/profile">Profile</Link>
-      </nav>
+      <Navbar/>
 
       {/* Page Routes */}
       <Routes>
