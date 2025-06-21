@@ -5,9 +5,28 @@ from db import get_db_connection
 flights_bp = Blueprint('flights', __name__)
 
 # =======================
-# SEARCH FLIGHTS ROUTE
+# GET ALL FLIGHTS (e.g. for display)
 # =======================
-@flights_bp.route('/flights/search', methods=['GET'])
+@flights_bp.route('/', methods=['GET'])
+@jwt_required()
+def get_all_flights():
+    try:
+        db = get_db_connection()
+        cursor = db.cursor(dictionary=True)
+        cursor.execute("SELECT flight_number, route, flight_class, price, image_url FROM flights")
+        flights = cursor.fetchall()
+        return jsonify(flights), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cursor.close()
+        db.close()
+
+
+# =======================
+# SEARCH FLIGHTS
+# =======================
+@flights_bp.route('/search', methods=['GET'])
 @jwt_required()
 def search_flights():
     route = request.args.get('route')
@@ -35,11 +54,10 @@ def search_flights():
         cursor.execute(query, values)
         results = cursor.fetchall()
 
-        # Convert time/date fields to string
         for flight in results:
-            if 'flight_time' in flight and flight['flight_time']:
+            if 'flight_time' in flight:
                 flight['flight_time'] = str(flight['flight_time'])
-            if 'flight_date' in flight and flight['flight_date']:
+            if 'flight_date' in flight:
                 flight['flight_date'] = str(flight['flight_date'])
 
         return jsonify(results), 200
@@ -53,26 +71,25 @@ def search_flights():
 
 
 # =======================
-# BOOK FLIGHT ROUTE
+# BOOK FLIGHT
 # =======================
-@flights_bp.route('/flights/book', methods=['POST'])
+@flights_bp.route('/book', methods=['POST'])
 @jwt_required()
 def book_flight():
     data = request.get_json()
     flight_number = data.get('flight_number')
     seats_booked = data.get('seats_booked', 1)
     passenger_name = data.get('passenger_name', 'Unknown')
+    user_id = get_jwt_identity()
 
     if not flight_number:
         return jsonify({'error': 'Flight number is required'}), 400
-
-    user_id = get_jwt_identity()
 
     try:
         db = get_db_connection()
         cursor = db.cursor()
 
-        # Ensure flight exists
+        # Check flight existence
         cursor.execute("SELECT * FROM flights WHERE flight_number = %s", (flight_number,))
         flight = cursor.fetchone()
         if not flight:
@@ -83,7 +100,6 @@ def book_flight():
             INSERT INTO bookings (user_id, flight_number, passenger_name, seats_booked)
             VALUES (%s, %s, %s, %s)
         """, (user_id, flight_number, passenger_name, seats_booked))
-
         db.commit()
 
         return jsonify({

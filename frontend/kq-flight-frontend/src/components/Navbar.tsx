@@ -3,22 +3,21 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 
-const Navbar: React.FC = () => {
+const Navbar = () => {
   return (
     <nav className="navbar">
-      <div className="logo">Kenya Airways ✈️</div>
+      <h1>Kenya Airways ✈️</h1>
       <div className="nav-links">
         <Link to="/">Home</Link>
         <Link to="/search">Search Flights</Link>
         <Link to="/book">Book Flight</Link>
         <Link to="/profile">Profile</Link>
-      </div>
-      <div className="nav-actions">
-        <button className="login-btn">Login</button>
-        <button className="signup-btn">Sign Up</button>
+        <Link to="/login" className="login-btn">Login</Link>
+        <Link to="/signup" className="signup-btn">Sign Up</Link>
       </div>
     </nav>
   );
 };
 
 export default Navbar;
+

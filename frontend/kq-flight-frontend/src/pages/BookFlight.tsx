@@ -1,76 +1,87 @@
-import React, { useState } from 'react';
-import { bookFlight } from '../services/flightService';
+// src/pages/BookFlight.tsx
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import './BookFlight.css';
+
+interface Flight {
+  flight_number: string;
+  route: string;
+  flight_class: string;
+  price: number;
+  image_url: string;
+}
 
 const BookFlight: React.FC = () => {
-  const [formData, setFormData] = useState({
-    flight_number: '',
-    seats_booked: 1,
-    passenger_name: '',
-  });
+  const location = useLocation();
+  const navigate = useNavigate();
+  const flightParam = new URLSearchParams(location.search).get('flight');
+  const [flight, setFlight] = useState<Flight | null>(null);
+  const [name, setName] = useState('');
+  const [seats, setSeats] = useState(1);
 
-  const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'seats_booked' ? Number(value) : value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setMessage('');
-    setError('');
-    try {
-      const response = await bookFlight(formData);
-      setMessage(`✅ ${response.message}`);
-    } catch (err: any) {
-      setError('❌ Failed to book flight. Please check the details and try again.');
+  useEffect(() => {
+    if (flightParam) {
+      axios.get(`http://127.0.0.1:5000/api/flights/flights`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      })
+        .then(res => {
+          const selected = res.data.find((f: Flight) => f.flight_number === flightParam);
+          if (selected) setFlight(selected);
+        })
+        .catch(err => console.error('Fetch failed:', err));
     }
+  }, [flightParam]);
+
+  const handleBooking = () => {
+    if (!flight) return;
+
+    axios.post(`http://127.0.0.1:5000/api/flights/flights/book`, {
+      flight_number: flight.flight_number,
+      passenger_name: name,
+      seats_booked: seats
+    }, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    })
+      .then(() => {
+        alert('Booking Successful!');
+        navigate('/profile');
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Booking failed');
+      });
   };
 
   return (
-    <div className="p-4 max-w-xl mx-auto">
-      <h2 className="text-xl font-bold mb-4">🛫 Book a Flight</h2>
+    <div className="book-container">
+      {flight ? (
+        <div className="booking-card">
+          <img src={flight.image_url} alt={flight.route} className="booking-image" />
+          <div className="booking-details">
+            <h2>{flight.route}</h2>
+            <p><strong>Class:</strong> {flight.flight_class}</p>
+            <p><strong>Price:</strong> ${flight.price.toFixed(2)}</p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="flight_number"
-          placeholder="Flight Number (e.g., KQ123)"
-          value={formData.flight_number}
-          onChange={handleChange}
-          required
-          className="w-full border rounded p-2"
-        />
-        <input
-          type="number"
-          name="seats_booked"
-          min="1"
-          value={formData.seats_booked}
-          onChange={handleChange}
-          required
-          className="w-full border rounded p-2"
-        />
-        <input
-          type="text"
-          name="passenger_name"
-          placeholder="Passenger Name"
-          value={formData.passenger_name}
-          onChange={handleChange}
-          required
-          className="w-full border rounded p-2"
-        />
-
-        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">
-          Book Flight
-        </button>
-      </form>
-
-      {message && <p className="text-green-600 mt-4">{message}</p>}
-      {error && <p className="text-red-600 mt-4">{error}</p>}
+            <input
+              type="text"
+              placeholder="Passenger Name"
+              value={name}
+              onChange={e => setName(e.target.value)}
+            />
+            <input
+              type="number"
+              min={1}
+              placeholder="Seats"
+              value={seats}
+              onChange={e => setSeats(parseInt(e.target.value))}
+            />
+            <button onClick={handleBooking}>Confirm Booking</button>
+          </div>
+        </div>
+      ) : (
+        <p className="loading">Loading flight details...</p>
+      )}
     </div>
   );
 };

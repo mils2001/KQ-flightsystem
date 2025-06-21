@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { getUserProfile } from '../services/flightService';
+import { getUserProfile } from '../services/profileService';
+
 
 interface UserProfile {
   id: number;
