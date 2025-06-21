@@ -12,7 +12,7 @@ import Login from './pages/Login'; // create if not already
 const App: React.FC = () => {
   return (
     <>
-      <Navbar />
+      
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<SearchFlights />} />
