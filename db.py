@@ -3,6 +3,7 @@ from flask import g
 
 # 🔗 Database connection setup
 def get_db_connection():
+    """Establish a MySQL connection and store it in Flask's g object."""
     if 'db' not in g:
         g.db = mysql.connector.connect(
             host="localhost",
@@ -14,26 +15,33 @@ def get_db_connection():
 
 # 🔒 Close DB connection when app context ends
 def close_db(e=None):
+    """Close the MySQL connection stored in g, if it exists."""
     db = g.pop('db', None)
     if db is not None:
         db.close()
 
 # 🏗️ Create necessary tables if they don't exist
 def create_tables():
+    """Create the users, flights, and bookings tables with appropriate schemas."""
     db = get_db_connection()
     cursor = db.cursor()
 
-    # Users table
+    # Users table: Stores user information with authentication and profile details
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            username VARCHAR(100),
-            email VARCHAR(255) UNIQUE,
-            password_hash VARCHAR(255)
+            username VARCHAR(50) NOT NULL UNIQUE,
+            email VARCHAR(255),
+            password_hash VARCHAR(255) NOT NULL,
+            is_admin TINYINT(1) DEFAULT 0,
+            role VARCHAR(10) DEFAULT 'user',
+            profile_pic VARCHAR(255),
+            balance DECIMAL(10,2) DEFAULT 0.00,
+            phone_number VARCHAR(15)
         );
     """)
 
-    # Flights table — now includes date, time, and class
+    # Flights table: Stores flight details including date, time, and class
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS flights (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -48,7 +56,7 @@ def create_tables():
         );
     """)
 
-    # Bookings table
+    # Bookings table: Stores booking information linking users and flights
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS bookings (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -62,4 +70,3 @@ def create_tables():
 
     db.commit()
     cursor.close()
-

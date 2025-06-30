@@ -1,52 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import { getUserProfile } from '../services/profileService';
+// src/pages/Profile.tsx
+import React from 'react';
+import './Profile.css';
 
-
-interface UserProfile {
-  id: number;
-  username: string;
-  phone: string;
-  balance: number;
-  profile_picture: string | null;
-}
-
-const Profile = () => {
-  const [user, setUser] = useState<UserProfile | null>(null);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const data = await getUserProfile();
-        setUser(data);
-      } catch (err) {
-        console.error('Failed to fetch profile', err);
-      }
-    };
-    fetchProfile();
-  }, []);
-
-  if (!user) return <div>Loading...</div>;
+const Profile: React.FC = () => {
+  const user = {
+    name: 'Christian David',
+    email: 'chrismiles466@gmail.com',
+    balance: 'KES 15,000',
+    profilePic: 'https://i.imgur.com/V3Ei5vL.jpeg',
+    status: 'online',
+  };
 
   return (
-    <div className="p-8 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">👤 Welcome, {user.username}</h1>
-      {user.profile_picture && (
-        <img
-          src={user.profile_picture}
-          alt="Profile"
-          className="w-32 h-32 rounded-full mb-4 object-cover border"
-        />
-      )}
-      <p><strong>📞 Phone:</strong> {user.phone}</p>
-      <p><strong>💳 Balance:</strong> KES {user.balance}</p>
-
-      <div className="mt-6">
-        <label className="block mb-2">Upload New Profile Picture</label>
-        <input type="file" />
-        {/* Upload logic will come later */}
+    <div className="sidra-profile-container">
+      <div className="sidra-profile-card">
+        <div className="sidra-profile-top">
+          <img src={user.profilePic} alt="Profile" className="sidra-profile-img" />
+          <div className="sidra-profile-info">
+            <h2>{user.name}</h2>
+            <p className="sidra-email">{user.email}</p>
+            <span className={`sidra-status ${user.status}`}>{user.status}</span>
+          </div>
+        </div>
+        <div className="sidra-profile-details">
+          <p><strong>Account Balance:</strong> {user.balance}</p>
+          <button className="sidra-edit-btn">Edit Profile</button>
+        </div>
       </div>
     </div>
   );
 };
 
 export default Profile;
+
