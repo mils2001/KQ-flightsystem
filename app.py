@@ -5,55 +5,42 @@ from dotenv import load_dotenv
 from datetime import timedelta
 from db import get_db_connection, create_tables, close_db
 
-# Load environment variables (single call)
+# Load env vars
 load_dotenv()
 
-# Import Blueprints
+# Blueprints
 from routes.auth import auth_bp
 from routes.profile import profile_bp
 from routes.flights import flights_bp
 from routes.bookings import bookings_bp
-from dashboard import dashboard_bp
-from admin_routes import admin_bp
-from experience import experience_bp
 
-# Initialize Flask App
 app = Flask(__name__)
 
-# Enable CORS for frontend on Vite (port 5173)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
 
-# JWT Configuration
-# TODO: Move JWT_SECRET_KEY to .env file for production
-app.config['JWT_SECRET_KEY'] = 'be1b10ff40bf0e4b09b5fb05d8e7df07f6011b96c1b987b0a3875704d622f980'
+app.config['JWT_SECRET_KEY'] = 'your-very-secret-key'
 app.config['SECRET_KEY'] = app.config['JWT_SECRET_KEY']
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=365)
 app.config['JWT_TOKEN_LOCATION'] = ['headers']
 
-# Initialize JWT and Bcrypt
 jwt = JWTManager(app)
 
-
-# Register Blueprints with proper prefixes
+# Register routes
 app.register_blueprint(auth_bp, url_prefix='/api')
-app.register_blueprint(profile_bp, url_prefix='/api')
-app.register_blueprint(flights_bp, url_prefix='/api/flights')
-app.register_blueprint(bookings_bp, url_prefix='/api/bookings')
-app.register_blueprint(dashboard_bp, url_prefix='/api')
-app.register_blueprint(admin_bp, url_prefix='/api')
+app.register_blueprint(profile_bp)
+app.register_blueprint(flights_bp)
+app.register_blueprint(bookings_bp)
 
-# Create database tables on startup
+# Auto create DB
 with app.app_context():
     create_tables()
 
-# Example Protected Route
 @app.route('/api/dashboard', methods=['GET'])
 @jwt_required()
 def dashboard():
     current_user = get_jwt_identity()
     return jsonify(message=f"Welcome {current_user}!"), 200
 
-# Test Database Connection Route
 @app.route('/api/test_db', methods=['GET'])
 def test_db():
     try:
@@ -67,10 +54,10 @@ def test_db():
     except Exception as e:
         return jsonify({"error": f"Database error: {str(e)}"}), 500
 
-# Close DB connection after each request
 @app.teardown_appcontext
 def teardown_db(exception=None):
     close_db()
 
 if __name__ == '__main__':
     app.run(debug=True)
+

@@ -6,7 +6,6 @@ scheduler = BackgroundScheduler()
 scheduler.start()
 
 def schedule_alarm(phone_number, flight_name, flight_time):
-    # Run one hour before the flight
     alarm_time = flight_time - timedelta(hours=1)
 
     scheduler.add_job(
@@ -17,3 +16,4 @@ def schedule_alarm(phone_number, flight_name, flight_time):
         id=f'alarm_{phone_number}_{flight_time}'
     )
     print(f"⏰ Alarm set for {phone_number} at {alarm_time}")
+

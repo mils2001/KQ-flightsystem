@@ -2,10 +2,8 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from db import get_db_connection
 
-# Blueprint with proper name and prefix
 profile_bp = Blueprint('profile', __name__, url_prefix='/api/profile')
 
-# GET user profile
 @profile_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_profile():
@@ -27,15 +25,15 @@ def get_profile():
 
     return jsonify({'profile': user}), 200
 
-@profile_bp.route('update', methods=['PUT'])
+@profile_bp.route('/update', methods=['PUT'])
 @jwt_required()
 def update_profile():
     user_id = get_jwt_identity()
     data = request.get_json()
 
-    profile_pic = data.get('profile_pic')  # image URL or base64 string
-    balance = data.get('balance')          # optional
-    phone_number = data.get('phone_number')  # new
+    profile_pic = data.get('profile_pic')
+    balance = data.get('balance')
+    phone_number = data.get('phone_number')
 
     if not profile_pic and balance is None and not phone_number:
         return jsonify({"error": "No update data provided"}), 400
@@ -49,11 +47,9 @@ def update_profile():
     if profile_pic:
         update_fields.append("profile_pic = %s")
         values.append(profile_pic)
-
     if balance is not None:
         update_fields.append("balance = %s")
         values.append(balance)
-
     if phone_number:
         update_fields.append("phone_number = %s")
         values.append(phone_number)

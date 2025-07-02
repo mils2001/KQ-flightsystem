@@ -4,9 +4,8 @@ from notifications import send_booking_sms
 from alarm_scheduler import schedule_alarm
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-bookings_bp = Blueprint('bookings', __name__)
+bookings_bp = Blueprint('booking', __name__, url_prefix='/api/booking')
 
-# ✅ Create a booking
 @bookings_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_booking():
@@ -47,12 +46,8 @@ def create_booking():
         """, (user_id, flight_number, seat_number, seats_booked))
         conn.commit()
 
-        # ✅ Compose and send SMS
-        confirmation_message = f"Your flight '{flight_name}' is confirmed for {flight_time}."
-        send_booking_sms(user_phone, flight_name, flight_time, custom_message=confirmation_message)
-
-        # ✅ Schedule alarm with client's name
-        schedule_alarm(user_phone, flight_name, username)
+        send_booking_sms(user_phone, flight_name, flight_time)
+        schedule_alarm(user_phone, flight_name, flight_time)
 
         return jsonify({
             "message": f"Booking created successfully for flight {flight_number}, seat {seat_number}"
@@ -60,13 +55,10 @@ def create_booking():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
     finally:
         cursor.close()
         conn.close()
 
-
-# ✅ Get all bookings for the logged-in user
 @bookings_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_bookings():
@@ -79,10 +71,8 @@ def get_bookings():
         cursor.execute("SELECT * FROM bookings WHERE user_id = %s", (user_id,))
         bookings = cursor.fetchall()
         return jsonify({"bookings": bookings}), 200
-
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
     finally:
         cursor.close()
         conn.close()

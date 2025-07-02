@@ -15,7 +15,7 @@ def main():
         if choice == '1':
             flight_number = input("Flight Number: ")
             route = input("Route (e.g., Nairobi to Mombasa): ")
-            price = float(input("Price (KES): "))
+            price = float(input("Price ($): "))
             seats = int(input("Number of Seats: "))
             add_flight(flight_number, route, price, seats)
 
