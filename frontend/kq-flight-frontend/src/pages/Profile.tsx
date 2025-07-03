@@ -5,6 +5,7 @@ import "./Profile.css";
 const Profile: React.FC = () => {
   const [profile, setProfile] = useState<any>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
+  const [conversionRate, setConversionRate] = useState<number>(1.5);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -31,20 +32,21 @@ const Profile: React.FC = () => {
 
   if (!profile) return <div className="loading">Loading profile...</div>;
 
-  const usdRate = 1.5; // Example conversion rate
-  const usdBalance = (profile.balance * usdRate).toFixed(2);
+  const usdBalance = (profile.balance * conversionRate).toFixed(2);
 
   return (
     <div className="profile-container">
-      <div className="profile-card">
-        {/* LEFT SIDE */}
-        <div className="profile-left">
+      <div className="atm-card">
+        {/* Profile Section */}
+        <div className="left-section">
           <img
             src={profile.profile_pic || "https://i.imgur.com/7ZVofHE.jpeg"}
             alt="Profile"
             className="profile-pic"
           />
-          <div className="badges">
+          <div className="name">{profile.name || "User Name"}</div>
+          <div className="email">{profile.email}</div>
+          <div className="status-badges">
             <span className={`status ${profile.status === "online" ? "online" : "offline"}`}>
               {profile.status}
             </span>
@@ -52,37 +54,41 @@ const Profile: React.FC = () => {
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
-        <div className="profile-right">
-          <div className="welcome">
-            <div className="subtext">Welcome back,</div>
-            <div className="email">{profile.email}</div>
+        {/* Wallet + QR */}
+        <div className="middle-section">
+          <div className="wallet-address">
+            <label>Wallet</label>
+            <div>{profile.wallet_address}</div>
           </div>
 
-          <div className="wallet-card">
-            <div className="label">Wallet Address</div>
-            <div className="value">{profile.wallet_address}</div>
-          </div>
-
-          <div className="balance-qr">
-            <div className="balance-section">
-              <div className="label">Balance</div>
-              <div className="balance">
-                {profile.balance} KQCoin <br />
-                (~ ${usdBalance} USD)
-              </div>
+          <div className="balance-section">
+            <div className="balance">
+              <strong>{profile.balance} KQCoin</strong>
+              <div className="usd">≈ ${usdBalance} USD</div>
             </div>
-            {qrCodeUrl && (
-              <img src={qrCodeUrl} alt="QR Code" className="qr-img" />
-            )}
-          </div>
 
-          <div className="mining-card">
-            <h3>Mining</h3>
-            <div className="button-group">
-              <button className="btn start">Start Mining</button>
-              <button className="btn activity">View Activity</button>
+            <div className="convert-box">
+              <label>Conversion Rate (USD):</label>
+              <input
+                type="number"
+                value={conversionRate}
+                onChange={(e) => setConversionRate(parseFloat(e.target.value))}
+              />
             </div>
+
+            {qrCodeUrl && <img src={qrCodeUrl} alt="QR Code" className="qr-img" />}
+          </div>
+        </div>
+
+        {/* Mining + Timer */}
+        <div className="right-section">
+          <h3>⛏ Mining</h3>
+          <div className="button-group">
+            <button className="btn start">Start Mining</button>
+            <button className="btn activity">View Activity</button>
+          </div>
+          <div className="timer">
+            Next Mining In: <span className="countdown">00:12:34</span>
           </div>
         </div>
       </div>
