@@ -6,6 +6,11 @@ const Profile: React.FC = () => {
   const [profile, setProfile] = useState<any>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const [conversionRate, setConversionRate] = useState<number>(1.5);
+  const [countdown, setCountdown] = useState<string>("00:00:00");
+
+  // Simulated last mining time (replace this with actual backend time if needed)
+  const lastMiningTime = new Date(localStorage.getItem("lastMiningTime") || new Date().toISOString());
+  const nextMiningTime = new Date(lastMiningTime.getTime() + 24 * 60 * 60 * 1000);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -29,6 +34,32 @@ const Profile: React.FC = () => {
 
     fetchProfile();
   }, []);
+
+  // Timer updater
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date().getTime();
+      const diff = nextMiningTime.getTime() - now;
+
+      if (diff <= 0) {
+        setCountdown("00:00:00");
+        return;
+      }
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      setCountdown(
+        `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(
+          seconds
+        ).padStart(2, "0")}`
+      );
+    };
+
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [nextMiningTime]);
 
   if (!profile) return <div className="loading">Loading profile...</div>;
 
@@ -88,7 +119,7 @@ const Profile: React.FC = () => {
             <button className="btn activity">View Activity</button>
           </div>
           <div className="timer">
-            Next Mining In: <span className="countdown">00:12:34</span>
+            Next Mining In: <span className="countdown">{countdown}</span>
           </div>
         </div>
       </div>
