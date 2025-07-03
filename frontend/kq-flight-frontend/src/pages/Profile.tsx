@@ -1,71 +1,95 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Profile.css";
 
-interface UserProfile {
-  username: string;
-  email: string;
-  phone_number: string;
-  profile_pic_url: string;
-  balance: string;
-  miles_traveled: number;
-  wallet_address: string;
-  role: string;
-}
-
-export default function ProfilePage() {
-  const [user, setUser] = useState<UserProfile | null>(null);
+const Profile: React.FC = () => {
+  const [profile, setProfile] = useState<any>(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
 
   useEffect(() => {
-    axios.get("/api/profile", {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    }).then((res) => setUser(res.data))
-      .catch((err) => console.error(err));
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const config = {
+          headers: { Authorization: `Bearer ${token}` }
+        };
+
+        const response = await axios.get("http://127.0.0.1:5000/api/profile", config);
+        setProfile(response.data);
+
+        const qrResponse = await axios.get("http://127.0.0.1:5000/api/profile/qr", {
+          headers: config.headers,
+          responseType: "blob"
+        });
+
+        const qrUrl = URL.createObjectURL(qrResponse.data);
+        setQrCodeUrl(qrUrl);
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      }
+    };
+
+    fetchProfile();
   }, []);
 
-  if (!user) return <p>Loading profile...</p>;
+  if (!profile) return <div className="loading">Loading profile...</div>;
+
+  const usdBalance = (profile.balance * 2).toFixed(2); // Example rate
 
   return (
     <div className="profile-container">
-      <div className="profile-sidebar">
-        <img
-          src={user.profile_pic_url || "/default-profile.jpg"}
-          alt="Profile"
-          className="profile-pic"
-        />
-        <h2>{user.username}</h2>
-        <p>{user.email}</p>
-        <p>{user.phone_number}</p>
-        <p className="role-badge">{user.role}</p>
-
-        <img
-          src="/api/profile/qr"
-          alt="User QR Code"
-          className="qr-code"
-        />
-      </div>
-
-      <div className="profile-card">
-        <h3>Account Card</h3>
-        <div className="atm-card">
-          <div className="balance-section">
-            <p>Balance</p>
-            <h2>KES {user.balance}</h2>
-          </div>
-          <div className="miles-wallet">
-            <p>Miles: {user.miles_traveled}</p>
-            <p>Wallet: <span className="wallet">{user.wallet_address || "N/A"}</span></p>
+      <div className="atm-card">
+        {/* Left: Profile Info */}
+        <div className="left-section">
+          <img
+            src={profile.profile_pic}
+            alt="Profile"
+            className="profile-pic"
+          />
+          <div className="user-info">
+            <h3>{profile.username}</h3>
+            <p className="email">{profile.email}</p>
+            <div className="status">
+              <span className="dot online"></span> Online
+            </div>
+            <div className="badge">✔ Verified</div>
           </div>
         </div>
 
-        <div className="actions">
-          <button>Start Mining</button>
-          <button>Edit Profile</button>
+        {/* Middle: Wallet and Balance */}
+        <div className="middle-section">
+          <div className="wallet-details">
+            <div className="label">Wallet Address</div>
+            <div className="value">{profile.wallet_address}</div>
+          </div>
+
+          <div className="balance-qr">
+            <div className="balance-details">
+              <div className="label">Balance</div>
+              <div className="balance">{usdBalance} USD</div>
+              <div className="subtext">≈ {profile.balance} KQCoin</div>
+              <div className="miles">Miles Traveled: {profile.miles_traveled}</div>
+            </div>
+            {qrCodeUrl && (
+              <img src={qrCodeUrl} alt="QR Code" className="qr-img" />
+            )}
+          </div>
+        </div>
+
+        {/* Right: Actions */}
+        <div className="right-section">
+          <h3>Mining</h3>
+          <div className="button-group">
+            <button className="btn start">Start Mining</button>
+            <button className="btn activity">View Activity</button>
+          </div>
+          <div className="phone">📱 {profile.phone_number}</div>
+          <div className="role">🛡️ Role: {profile.role}</div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Profile;
 

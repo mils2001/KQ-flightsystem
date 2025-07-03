@@ -1,100 +1,209 @@
 .profile-container {
   display: flex;
-  gap: 2rem;
+  justify-content: center;
   padding: 2rem;
-  background: linear-gradient(to right, #eef2f3, #8e9eab);
+  background: #0f0f0f;
   min-height: 100vh;
   font-family: 'Segoe UI', sans-serif;
-}
-
-.profile-sidebar {
-  width: 30%;
-  background: white;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  box-shadow: 0 0 15px rgba(0,0,0,0.1);
-  text-align: center;
-}
-
-.profile-pic {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 50%;
-  margin-bottom: 1rem;
-}
-
-.qr-code {
-  width: 120px;
-  height: 120px;
-  margin-top: 1rem;
-  border-radius: 0.5rem;
-  border: 2px solid #007bff;
-  padding: 5px;
-}
-
-.role-badge {
-  background-color: #007bff;
-  color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 0.5rem;
-  margin-top: 1rem;
-  display: inline-block;
-}
-
-.profile-card {
-  flex-grow: 1;
-  background: white;
-  padding: 2rem;
-  border-radius: 1.5rem;
-  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  color: #eee;
 }
 
 .atm-card {
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-  color: white;
-  padding: 1.5rem;
-  border-radius: 1rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-.balance-section p {
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-.balance-section h2 {
-  margin: 0.5rem 0;
-}
-
-.miles-wallet {
-  margin-top: 1rem;
-  font-size: 0.9rem;
-}
-
-.wallet {
-  font-family: monospace;
-  display: block;
-  overflow-wrap: break-word;
-}
-
-.actions {
   display: flex;
-  gap: 1rem;
+  flex-direction: row;
+  justify-content: space-between;
+  background: linear-gradient(145deg, #1c1c1c, #2c2c2c);
+  border-radius: 20px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 1100px;
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
+  color: #fff;
 }
 
-.actions button {
-  flex: 1;
-  background: #007bff;
-  color: white;
-  padding: 0.7rem;
+.left-section,
+.middle-section,
+.right-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.left-section {
+  align-items: center;
+  width: 25%;
+}
+
+.profile-pic {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid #00bcd4;
+  box-shadow: 0 0 15px rgba(0, 188, 212, 0.6);
+  margin-bottom: 1rem;
+}
+
+.user-info {
+  text-align: center;
+}
+
+.user-info h3 {
+  margin-bottom: 0.3rem;
+}
+
+.email {
+  font-size: 0.9rem;
+  color: #bbb;
+  margin-bottom: 0.3rem;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: #8bc34a;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #4caf50;
+}
+
+.badge {
+  margin-top: 0.5rem;
+  background-color: #2196f3;
+  padding: 0.3rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: #fff;
+}
+
+.middle-section {
+  width: 50%;
+  padding: 0 1.5rem;
+  border-left: 1px solid #444;
+  border-right: 1px solid #444;
+}
+
+.wallet-details {
+  margin-bottom: 2rem;
+}
+
+.label {
+  font-size: 0.9rem;
+  color: #bbb;
+  margin-bottom: 0.3rem;
+}
+
+.value {
+  font-size: 1rem;
+  font-weight: 600;
+  word-break: break-all;
+  color: #e0e0e0;
+}
+
+.balance-qr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.balance-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.balance {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #00e676;
+}
+
+.subtext {
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.miles {
+  font-size: 0.85rem;
+  color: #bbb;
+}
+
+.qr-img {
+  width: 90px;
+  height: 90px;
+  margin-left: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #666;
+  background: #fff;
+}
+
+.right-section {
+  width: 25%;
+  text-align: center;
+  padding-left: 1rem;
+}
+
+.right-section h3 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: #03a9f4;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.btn {
+  padding: 0.6rem 1rem;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 10px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: 0.3s ease;
+  background-color: #424242;
+  color: #fff;
 }
 
-.actions button:hover {
-  background: #0056b3;
+.btn:hover {
+  background-color: #616161;
 }
+
+.btn.start {
+  background-color: #43a047;
+}
+
+.btn.start:hover {
+  background-color: #66bb6a;
+}
+
+.btn.activity {
+  background-color: #1e88e5;
+}
+
+.btn.activity:hover {
+  background-color: #42a5f5;
+}
+
+.phone, .role {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: #ccc;
+}
+
+.loading {
+  text-align: center;
+  color: #fff;
+  margin-top: 4rem;
+  font-size: 1.2rem;
+}
+

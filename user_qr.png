@@ -1,0 +1,3 @@
+{
+  "msg": "Bad Authorization header. Expected 'Authorization: Bearer <JWT>'"
+}

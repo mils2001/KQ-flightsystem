@@ -26,6 +26,8 @@ def get_profile():
     return jsonify({'message': 'User not found'}), 404
 
 
+
+
 @profile_bp.route('/api/profile/qr', methods=['GET'])
 @jwt_required()
 def generate_qr():
