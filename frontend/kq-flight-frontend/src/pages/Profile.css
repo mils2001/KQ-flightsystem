@@ -1,230 +1,155 @@
 .profile-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
+  padding: 30px;
+  background: #0d1117;
+  color: #e6edf3;
   min-height: 100vh;
-  background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
-  color: #fff;
   font-family: 'Segoe UI', sans-serif;
 }
 
-.atm-card {
+.profile-wrapper {
   display: flex;
   flex-direction: row;
-  background: #121c2c;
-  padding: 2rem;
-  border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-  gap: 2rem;
-  max-width: 1100px;
-  width: 100%;
-  flex-wrap: wrap;
+  gap: 40px;
+  max-width: 1200px;
+  margin: auto;
 }
 
-/* Left: Profile */
 .left-section {
   flex: 1;
-  max-width: 250px;
+  background: #161b22;
+  padding: 25px;
+  border-radius: 12px;
   text-align: center;
-  padding-right: 1rem;
-  border-right: 1px solid #2e3a4d;
 }
 
 .profile-pic {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  border: 4px solid #00e5ff;
+  width: 140px;
+  height: 140px;
   object-fit: cover;
-  margin-bottom: 1rem;
+  border-radius: 50%;
+  border: 3px solid #1f6feb;
+  margin-bottom: 15px;
 }
 
-.name {
-  font-size: 1.3rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
-}
-
-.email {
-  font-size: 0.9rem;
-  color: #ccc;
-  margin-bottom: 1rem;
-}
-
-.status-badges {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
+.badges {
+  margin: 10px 0;
 }
 
 .status {
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
+  padding: 5px 12px;
+  border-radius: 20px;
   font-weight: bold;
-  text-transform: capitalize;
+  margin-right: 10px;
 }
 
 .status.online {
-  background-color: #00e676;
-  color: #000;
+  background: #28a745;
+  color: white;
 }
 
 .status.offline {
-  background-color: #ff1744;
+  background: #6c757d;
+  color: white;
 }
 
 .verified {
-  background-color: #00bcd4;
-  color: #fff;
-  font-size: 0.75rem;
-  padding: 3px 10px;
+  background: #1f6feb;
+  padding: 5px 10px;
   border-radius: 12px;
+  font-size: 0.9em;
+  color: white;
 }
 
-/* Middle: Wallet + Balance */
-.middle-section {
-  flex: 2;
-  padding: 0 1rem;
-  border-right: 1px solid #2e3a4d;
-}
-
-.wallet-address {
-  margin-bottom: 1rem;
-}
-
-.wallet-address label {
-  font-weight: bold;
-  color: #aaa;
-}
-
-.wallet-address div {
-  font-family: monospace;
-  background: #1e2a38;
-  padding: 0.5rem;
-  border-radius: 10px;
-  margin-top: 5px;
-  word-break: break-all;
-}
-
-.balance-section {
-  margin-top: 1rem;
-}
-
-.balance {
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-}
-
-.usd {
-  font-size: 0.9rem;
-  color: #9be7ff;
-}
-
-.convert-box {
-  margin-top: 1rem;
-}
-
-.convert-box label {
-  font-size: 0.8rem;
+.email {
+  font-size: 0.95rem;
   color: #ccc;
-  display: block;
-  margin-bottom: 5px;
+  margin-top: 10px;
 }
 
-.convert-box input {
-  width: 100%;
-  padding: 6px 10px;
-  border: none;
-  border-radius: 8px;
-  background-color: #1f2e42;
-  color: #fff;
-  font-size: 1rem;
-  outline: none;
+.right-section {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.wallet-card,
+.balance-card,
+.mining-card {
+  background: #161b22;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #1f6feb55;
+}
+
+.card-header {
+  font-weight: bold;
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+}
+
+.card-body {
+  font-family: monospace;
+  word-wrap: break-word;
+  margin-bottom: 10px;
 }
 
 .qr-img {
-  margin-top: 1.5rem;
-  width: 120px;
-  height: 120px;
-  background: white;
-  padding: 5px;
-  border-radius: 10px;
+  width: 90px;
+  margin-top: 10px;
+  border: 2px solid #1f6feb;
+  border-radius: 8px;
 }
 
-/* Right: Mining + Timer */
-.right-section {
-  flex: 1;
-  text-align: center;
-  padding-left: 1rem;
+.balance-card h3 {
+  margin-bottom: 8px;
 }
 
-.right-section h3 {
-  color: #00e5ff;
-  margin-bottom: 1rem;
+.balance-card p {
+  margin: 4px 0;
 }
 
-.button-group {
+.claim-btn {
+  margin-top: 10px;
+  padding: 10px;
+  background: #1f6feb;
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.claim-btn:disabled {
+  background: #444c56;
+  cursor: not-allowed;
+}
+
+.mining-card .button-group {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 10px;
+  margin-top: 10px;
 }
 
 .btn {
-  padding: 10px 15px;
-  font-size: 1rem;
-  font-weight: bold;
+  padding: 10px 14px;
+  border-radius: 8px;
   border: none;
-  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.3s ease;
+  font-weight: bold;
+  color: white;
 }
 
-.btn.start {
-  background: #00e676;
-  color: #000;
+.start {
+  background: #28a745;
 }
 
-.btn.activity {
-  background: #2196f3;
-  color: #fff;
+.activity {
+  background: #6f42c1;
 }
 
-.btn:hover {
-  opacity: 0.85;
-}
-
-.timer {
-  margin-top: 1.5rem;
-  font-size: 0.95rem;
-  color: #ccc;
-}
-
-.countdown {
-  display: block;
-  font-size: 1.5rem;
-  color: #ffca28;
-  margin-top: 5px;
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-  .atm-card {
-    flex-direction: column;
-    align-items: center;
-    padding: 1.5rem;
-  }
-
-  .left-section, .middle-section, .right-section {
-    border: none;
-    max-width: 100%;
-    padding: 1rem 0;
-  }
-
-  .middle-section {
-    border-top: 1px solid #2e3a4d;
-    border-bottom: 1px solid #2e3a4d;
-  }
+.connect {
+  background: #f6851b;
 }
 
