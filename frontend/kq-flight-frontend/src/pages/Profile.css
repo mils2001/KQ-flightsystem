@@ -1,155 +1,151 @@
 .profile-container {
-  padding: 30px;
-  background: #0d1117;
-  color: #e6edf3;
-  min-height: 100vh;
-  font-family: 'Segoe UI', sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .profile-wrapper {
   display: flex;
-  flex-direction: row;
-  gap: 40px;
-  max-width: 1200px;
-  margin: auto;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1000px;
 }
 
-.left-section {
-  flex: 1;
-  background: #161b22;
-  padding: 25px;
-  border-radius: 12px;
-  text-align: center;
+/* ATM Card Style */
+.atm-card {
+  display: flex;
+  justify-content: space-between;
+  background: linear-gradient(to right, #101720, #2a2e38);
+  border-radius: 15px;
+  color: #fff;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.atm-left {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 
 .profile-pic {
-  width: 140px;
-  height: 140px;
-  object-fit: cover;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  border: 3px solid #1f6feb;
-  margin-bottom: 15px;
+  object-fit: cover;
+  border: 2px solid #00d1b2;
 }
 
-.badges {
-  margin: 10px 0;
+.user-info h2 {
+  margin: 0;
+  font-size: 1.5rem;
 }
 
-.status {
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-weight: bold;
-  margin-right: 10px;
-}
-
-.status.online {
-  background: #28a745;
-  color: white;
-}
-
-.status.offline {
-  background: #6c757d;
-  color: white;
-}
-
-.verified {
-  background: #1f6feb;
-  padding: 5px 10px;
-  border-radius: 12px;
-  font-size: 0.9em;
-  color: white;
-}
-
-.email {
-  font-size: 0.95rem;
+.user-info .email {
+  font-size: 0.9rem;
   color: #ccc;
-  margin-top: 10px;
 }
 
-.right-section {
-  flex: 2;
+.verified-badge {
+  background-color: #00d1b2;
+  color: #fff;
+  font-size: 0.8rem;
+  padding: 2px 6px;
+  border-radius: 5px;
+  margin-top: 4px;
+  display: inline-block;
+}
+
+.atm-right {
+  text-align: right;
+}
+
+.atm-qr {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+}
+
+.user-id {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: #ccc;
+}
+
+/* Wallet Overview */
+.wallet-overview {
   display: flex;
-  flex-direction: column;
-  gap: 30px;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
 }
 
-.wallet-card,
-.balance-card,
-.mining-card {
-  background: #161b22;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 0 10px #1f6feb55;
+.wallet-info,
+.wallet-actions {
+  background: #f9f9f9;
+  border-radius: 10px;
+  padding: 1.5rem;
+  flex: 1;
+  min-width: 300px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.card-header {
-  font-weight: bold;
-  margin-bottom: 8px;
-  font-size: 1.1rem;
-}
-
-.card-body {
-  font-family: monospace;
-  word-wrap: break-word;
-  margin-bottom: 10px;
-}
-
-.qr-img {
-  width: 90px;
-  margin-top: 10px;
-  border: 2px solid #1f6feb;
-  border-radius: 8px;
-}
-
-.balance-card h3 {
-  margin-bottom: 8px;
-}
-
-.balance-card p {
-  margin: 4px 0;
+.wallet-info h3 {
+  margin-top: 0;
+  color: #333;
 }
 
 .claim-btn {
-  margin-top: 10px;
-  padding: 10px;
-  background: #1f6feb;
-  border: none;
+  margin-top: 1rem;
+  background-color: #00d1b2;
   color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
   font-weight: bold;
-  border-radius: 8px;
   cursor: pointer;
+  transition: background 0.3s ease;
 }
 
 .claim-btn:disabled {
-  background: #444c56;
+  background-color: #ccc;
   cursor: not-allowed;
 }
 
-.mining-card .button-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-}
-
 .btn {
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
+  background-color: #007bff;
   color: white;
+  border: none;
+  padding: 10px;
+  margin: 0.5rem 0;
+  width: 100%;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
-.start {
-  background: #28a745;
+.btn.connect {
+  background-color: #ff9900;
 }
 
-.activity {
-  background: #6f42c1;
+.btn.send {
+  background-color: #6f42c1;
 }
 
-.connect {
-  background: #f6851b;
+.btn.redeem {
+  background-color: #28a745;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.loading {
+  text-align: center;
+  margin-top: 5rem;
+  font-size: 1.5rem;
 }
 

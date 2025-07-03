@@ -42,7 +42,7 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setClaimCooldown(prev => (prev > 0 ? prev - 1 : 0));
+      setClaimCooldown((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
     return () => clearInterval(interval);
   }, []);
@@ -79,58 +79,46 @@ const Profile: React.FC = () => {
   return (
     <div className="profile-container">
       <div className="profile-wrapper">
-
-        {/* LEFT SECTION */}
-        <div className="left-section">
-          <img
-            src={profile.profile_pic || "https://i.imgur.com/7ZVofHE.jpeg"}
-            alt="Profile"
-            className="profile-pic"
-          />
-          <div className="badges">
-            <span className={`status ${profile.status === "online" ? "online" : "offline"}`}>
-              {profile.status}
-            </span>
-            {profile.is_verified && <span className="verified">✔ Verified</span>}
+        <div className="atm-card">
+          <div className="atm-left">
+            <img
+              src={profile.profile_pic || "https://i.imgur.com/7ZVofHE.jpeg"}
+              alt="Profile"
+              className="profile-pic"
+            />
+            <div className="user-info">
+              <h2>{profile.full_name || "User Name"}</h2>
+              <p className="email">{profile.email}</p>
+              {profile.is_verified && <span className="verified-badge">✔ Verified</span>}
+            </div>
           </div>
-          <div className="email">{profile.email}</div>
+          <div className="atm-right">
+            <img src={qrCodeUrl} alt="QR Code" className="atm-qr" />
+            <p className="user-id">ID: {profile.user_id || "N/A"}</p>
+          </div>
         </div>
 
-        {/* RIGHT SECTION */}
-        <div className="right-section">
-          <div className="wallet-card">
-            <div className="card-header">Wallet Address</div>
-            <div className="card-body">{profile.wallet_address}</div>
-            <img src={qrCodeUrl} alt="QR Code" className="qr-img" />
-          </div>
-
-          <div className="balance-card">
-            <h3>Balance</h3>
-            <p>{profile.balance} KQCoin</p>
-            <p>~ ${usdBalance} USD</p>
+        <div className="wallet-overview">
+          <div className="wallet-info">
+            <h3>KQCoin Wallet</h3>
+            <p><strong>Balance:</strong> {profile.balance} KQCoin</p>
+            <p><strong>USD Value:</strong> ~${usdBalance} USD</p>
+            <p><strong>Wallet:</strong> {profile.wallet_address}</p>
             <button
               className="claim-btn"
               onClick={claimKQCoin}
               disabled={claimCooldown > 0}
             >
-              {claimCooldown > 0
-                ? `Next Claim in ${formatTime(claimCooldown)}`
-                : "Claim 2 KQCoin"}
+              {claimCooldown > 0 ? `Next Claim in ${formatTime(claimCooldown)}` : "Claim 2 KQCoin"}
             </button>
           </div>
 
-          <div className="mining-card">
-            <h3>Mining Options</h3>
-            <div className="button-group">
-              <button className="btn start">Start Mining</button>
-              <button className="btn connect" onClick={connectWallet}>
-                Connect MetaMask
-              </button>
-              <button className="btn activity">View Activity</button>
-            </div>
+          <div className="wallet-actions">
+            <button className="btn connect" onClick={connectWallet}>Connect MetaMask</button>
+            <button className="btn send">Send KQCoin</button>
+            <button className="btn redeem">Redeem for Flight</button>
           </div>
         </div>
-
       </div>
     </div>
   );
