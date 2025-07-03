@@ -10,18 +10,15 @@ const Profile: React.FC = () => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const config = {
-          headers: { Authorization: `Bearer ${token}` }
-        };
+        const config = { headers: { Authorization: `Bearer ${token}` } };
 
         const response = await axios.get("http://127.0.0.1:5000/api/profile", config);
         setProfile(response.data);
 
         const qrResponse = await axios.get("http://127.0.0.1:5000/api/profile/qr", {
           headers: config.headers,
-          responseType: "blob"
+          responseType: "blob",
         });
-
         const qrUrl = URL.createObjectURL(qrResponse.data);
         setQrCodeUrl(qrUrl);
       } catch (error) {
@@ -34,57 +31,59 @@ const Profile: React.FC = () => {
 
   if (!profile) return <div className="loading">Loading profile...</div>;
 
-  const usdBalance = (profile.balance * 2).toFixed(2); // Example rate
+  const usdRate = 1.5; // Example conversion rate
+  const usdBalance = (profile.balance * usdRate).toFixed(2);
 
   return (
     <div className="profile-container">
-      <div className="atm-card">
-        {/* Left: Profile Info */}
-        <div className="left-section">
+      <div className="profile-card">
+        {/* LEFT SIDE */}
+        <div className="profile-left">
           <img
-            src={profile.profile_pic}
+            src={profile.profile_pic || "https://i.imgur.com/7ZVofHE.jpeg"}
             alt="Profile"
             className="profile-pic"
           />
-          <div className="user-info">
-            <h3>{profile.username}</h3>
-            <p className="email">{profile.email}</p>
-            <div className="status">
-              <span className="dot online"></span> Online
-            </div>
-            <div className="badge">✔ Verified</div>
+          <div className="badges">
+            <span className={`status ${profile.status === "online" ? "online" : "offline"}`}>
+              {profile.status}
+            </span>
+            {profile.is_verified && <span className="verified">✔ Verified</span>}
           </div>
         </div>
 
-        {/* Middle: Wallet and Balance */}
-        <div className="middle-section">
-          <div className="wallet-details">
+        {/* RIGHT SIDE */}
+        <div className="profile-right">
+          <div className="welcome">
+            <div className="subtext">Welcome back,</div>
+            <div className="email">{profile.email}</div>
+          </div>
+
+          <div className="wallet-card">
             <div className="label">Wallet Address</div>
             <div className="value">{profile.wallet_address}</div>
           </div>
 
           <div className="balance-qr">
-            <div className="balance-details">
+            <div className="balance-section">
               <div className="label">Balance</div>
-              <div className="balance">{usdBalance} USD</div>
-              <div className="subtext">≈ {profile.balance} KQCoin</div>
-              <div className="miles">Miles Traveled: {profile.miles_traveled}</div>
+              <div className="balance">
+                {profile.balance} KQCoin <br />
+                (~ ${usdBalance} USD)
+              </div>
             </div>
             {qrCodeUrl && (
               <img src={qrCodeUrl} alt="QR Code" className="qr-img" />
             )}
           </div>
-        </div>
 
-        {/* Right: Actions */}
-        <div className="right-section">
-          <h3>Mining</h3>
-          <div className="button-group">
-            <button className="btn start">Start Mining</button>
-            <button className="btn activity">View Activity</button>
+          <div className="mining-card">
+            <h3>Mining</h3>
+            <div className="button-group">
+              <button className="btn start">Start Mining</button>
+              <button className="btn activity">View Activity</button>
+            </div>
           </div>
-          <div className="phone">📱 {profile.phone_number}</div>
-          <div className="role">🛡️ Role: {profile.role}</div>
         </div>
       </div>
     </div>
