@@ -10,6 +10,14 @@ const imageSlides = [
   "https://i.imgur.com/alZpv7R.jpeg",
 ];
 
+const marketingTexts = [
+  "Fly with Confidence",
+  "Book your next trip effortlessly",
+  "Seamless booking with Web3 security",
+  "Explore East Africa with ease",
+  "Affordable luxury in the skies",
+];
+
 const BookFlight: React.FC = () => {
   const [flights, setFlights] = useState<any[]>([]);
   const [origin, setOrigin] = useState("");
@@ -23,6 +31,7 @@ const BookFlight: React.FC = () => {
   const [error, setError] = useState("");
   const [userBalance, setUserBalance] = useState(1000);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [currentText, setCurrentText] = useState(0);
 
   const userId = localStorage.getItem("userId");
   const token = localStorage.getItem("token");
@@ -31,19 +40,20 @@ const BookFlight: React.FC = () => {
     axios
       .get("http://127.0.0.1:5000/api/flights")
       .then((res) => setFlights(res.data.flights))
-      .catch((err) => console.error(err));
+      .catch((err) => console.error("Error fetching flights", err));
   }, []);
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const slideInterval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % imageSlides.length);
-    }, 3000);
-    return () => clearInterval(interval);
+      setCurrentText((prev) => (prev + 1) % marketingTexts.length);
+    }, 4000);
+    return () => clearInterval(slideInterval);
   }, []);
 
   const handleBooking = async () => {
     if (!origin || !destination || !departureDate || !passengerName || seats < 1) {
-      setError("Please fill in all required fields");
+      setError("Please fill in all required fields.");
       return;
     }
 
@@ -70,20 +80,26 @@ const BookFlight: React.FC = () => {
     }
   };
 
+  const destinations = flights.map(f => ({
+    route: f.route,
+    image: f.image_url || imageSlides[Math.floor(Math.random() * imageSlides.length)],
+    price: f.price,
+  }));
+
   return (
-    <div className="booking-page">
+    <div className="booking-page dark-theme">
       {/* Slideshow */}
       <div className="slideshow">
-        <img src={imageSlides[currentSlide]} alt="slideshow" />
+        <img src={imageSlides[currentSlide]} alt="slideshow" className="slide-image" />
         <div className="marketing-text">
-          <h1>Fly with Confidence</h1>
-          <p>Book flights at the best rates with Kenya Airways</p>
+          <h1>{marketingTexts[currentText]}</h1>
+          <p>First Web3-powered African airline</p>
         </div>
       </div>
 
       {/* Booking Form */}
       <div className="booking-section">
-        <h2>Book Your Flight</h2>
+        <h2>🛫 Book Your Flight</h2>
         <p className="user-balance">Wallet Balance: ${userBalance}</p>
         <div className="form-grid">
           <input type="text" placeholder="Origin" value={origin} onChange={(e) => setOrigin(e.target.value)} />
@@ -101,21 +117,22 @@ const BookFlight: React.FC = () => {
           <button onClick={handleBooking}>Confirm Booking</button>
         </div>
         {error && <p className="error">{error}</p>}
-        {bookingSuccess && <p className="success">Booking confirmed successfully!</p>}
+        {bookingSuccess && <p className="success">🎉 Booking confirmed successfully!</p>}
       </div>
 
       {/* Destination Cards */}
       <div className="destination-section">
-        <h2>Popular Destinations</h2>
+        <h2>🌍 Popular Destinations</h2>
         <div className="destination-grid">
-          {flights.map((flight, index) => (
+          {destinations.map((dest, index) => (
             <div key={index} className="destination-card">
-              <img src={imageSlides[index % imageSlides.length]} alt={flight.destination} />
+              <img src={dest.image} alt={dest.route} />
               <div className="card-content">
-                <h3>{flight.destination}</h3>
-                <p>{flight.origin} → {flight.destination}</p>
-                <p>Price: ${flight.price}</p>
-                <button onClick={() => setDestination(flight.destination)}>Book Now</button>
+                <h3>{dest.route}</h3>
+                <p>From ${dest.price}</p>
+                <button onClick={() => setDestination(dest.route?.split(" to ")[1])}>
+                  Book Now
+                </button>
               </div>
             </div>
           ))}
