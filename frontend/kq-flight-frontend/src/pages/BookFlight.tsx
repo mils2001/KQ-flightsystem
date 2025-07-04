@@ -18,6 +18,25 @@ const marketingTexts = [
   "Affordable luxury in the skies",
 ];
 
+const services = [
+  {
+    image: "https://i.imgur.com/1a1pw7M.jpeg",
+    title: "Baggage Information",
+  },
+  {
+    image: "https://i.imgur.com/1aMHtHV.jpeg",
+    title: "Search Holidays",
+  },
+  {
+    image: "https://i.imgur.com/dupHQnG.jpeg",
+    title: "Visa Requirements",
+  },
+  {
+    image: "https://i.imgur.com/fhK5MvR.jpeg",
+    title: "Travel Guidelines",
+  },
+];
+
 const BookFlight: React.FC = () => {
   const [flights, setFlights] = useState<any[]>([]);
   const [origin, setOrigin] = useState("");
@@ -39,7 +58,7 @@ const BookFlight: React.FC = () => {
   useEffect(() => {
     axios
       .get("http://127.0.0.1:5000/api/flights")
-      .then((res) => setFlights(res.data.flights))
+      .then((res) => setFlights(res.data.flights || res.data))
       .catch((err) => console.error("Error fetching flights", err));
   }, []);
 
@@ -57,8 +76,21 @@ const BookFlight: React.FC = () => {
       return;
     }
 
+    const match = flights.find(f => {
+      const [flightOrigin, flightDestination] = f.route.split(" to ").map((s: string) => s.trim().toLowerCase());
+      return (
+        flightOrigin === origin.trim().toLowerCase() &&
+        flightDestination === destination.trim().toLowerCase()
+      );
+    });
+
+    if (!match) {
+      setError("No available flights for this route.");
+      return;
+    }
+
     try {
-      const res = await axios.post(
+      await axios.post(
         "http://127.0.0.1:5000/api/book",
         {
           user_id: userId,
@@ -76,64 +108,107 @@ const BookFlight: React.FC = () => {
       setBookingSuccess(true);
       setError("");
     } catch (err) {
+      console.error("Booking failed", err);
       setError("Booking failed. Please try again.");
     }
   };
 
-  const destinations = flights.map(f => ({
+  const destinations = flights.map((f) => ({
     route: f.route,
-    image: f.image_url || imageSlides[Math.floor(Math.random() * imageSlides.length)],
     price: f.price,
+    image: f.image_url || imageSlides[Math.floor(Math.random() * imageSlides.length)],
   }));
 
   return (
     <div className="booking-page dark-theme">
       {/* Slideshow */}
       <div className="slideshow">
-        <img src={imageSlides[currentSlide]} alt="slideshow" className="slide-image" />
+        <img src={imageSlides[currentSlide]} alt="slide" className="slide-image" />
         <div className="marketing-text">
           <h1>{marketingTexts[currentText]}</h1>
           <p>First Web3-powered African airline</p>
         </div>
       </div>
 
-      {/* Booking Form */}
+      {/* Booking Section */}
       <div className="booking-section">
         <h2>🛫 Book Your Flight</h2>
         <p className="user-balance">Wallet Balance: ${userBalance}</p>
-        <div className="form-grid">
-          <input type="text" placeholder="Origin" value={origin} onChange={(e) => setOrigin(e.target.value)} />
-          <input type="text" placeholder="Destination" value={destination} onChange={(e) => setDestination(e.target.value)} />
+        <div className="form-grid column-2">
+          <input
+            type="text"
+            value={origin}
+            onChange={(e) => setOrigin(e.target.value)}
+            placeholder="Where from?"
+          />
+
+          <input
+            type="text"
+            value={destination}
+            onChange={(e) => setDestination(e.target.value)}
+            placeholder="Where to?"
+          />
+
           <select value={tripType} onChange={(e) => setTripType(e.target.value)}>
             <option value="oneway">One Way</option>
             <option value="roundtrip">Round Trip</option>
           </select>
+
           <input type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} />
+
           {tripType === "roundtrip" && (
             <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
           )}
-          <input type="text" placeholder="Passenger Name" value={passengerName} onChange={(e) => setPassengerName(e.target.value)} />
-          <input type="number" min="1" placeholder="Seats" value={seats} onChange={(e) => setSeats(Number(e.target.value))} />
+
+          <input
+            type="text"
+            value={passengerName}
+            onChange={(e) => setPassengerName(e.target.value)}
+            placeholder="Passenger name"
+          />
+
+          <input
+            type="number"
+            min="1"
+            value={seats}
+            onChange={(e) => setSeats(Number(e.target.value))}
+            placeholder="Seats"
+          />
+
           <button onClick={handleBooking}>Confirm Booking</button>
         </div>
+
         {error && <p className="error">{error}</p>}
         {bookingSuccess && <p className="success">🎉 Booking confirmed successfully!</p>}
       </div>
 
-      {/* Destination Cards */}
+      {/* Destination Section */}
       <div className="destination-section">
         <h2>🌍 Popular Destinations</h2>
-        <div className="destination-grid">
-          {destinations.map((dest, index) => (
-            <div key={index} className="destination-card">
+        <div className="destination-grid row-2">
+          {destinations.map((dest, idx) => (
+            <div key={idx} className="destination-card">
               <img src={dest.image} alt={dest.route} />
               <div className="card-content">
                 <h3>{dest.route}</h3>
-                <p>From ${dest.price}</p>
-                <button onClick={() => setDestination(dest.route?.split(" to ")[1])}>
-                  Book Now
+                <p>From KES {dest.price}</p>
+                <button onClick={() => setDestination(dest.route.split(" to ")[1])}>
+                  ➡ Book Now
                 </button>
               </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Travel Services Section */}
+      <div className="extras-section">
+        <h2>🧳 Additional Services</h2>
+        <div className="services-grid">
+          {services.map((s, idx) => (
+            <div key={idx} className="service-card">
+              <img src={s.image} alt={s.title} />
+              <h4>{s.title}</h4>
             </div>
           ))}
         </div>
