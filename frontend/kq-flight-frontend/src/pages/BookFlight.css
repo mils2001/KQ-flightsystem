@@ -1,55 +1,214 @@
-.book-container {
-  display: flex;
-  justify-content: center;
+.book-flight-container {
+  max-width: 1400px;
+  margin: 0 auto;
   padding: 2rem;
+  background-color: #0d1117;
+  color: #f1f1f1;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-.booking-card {
-  max-width: 800px;
-  width: 100%;
-  display: flex;
+.title {
+  font-size: 3rem;
+  text-align: center;
+  color: #1fdf64;
+  margin-bottom: 1rem;
+}
+
+.marketing-banner {
+  position: relative;
+  height: 380px;
+  margin-bottom: 2rem;
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   overflow: hidden;
-  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
 }
 
-.booking-image {
-  width: 50%;
+.marketing-banner img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  filter: brightness(0.5);
 }
 
-.booking-details {
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.overlay-text {
+  position: absolute;
+  top: 20%;
+  left: 10%;
+  color: #fff;
 }
 
-.booking-details h2 {
+.overlay-text h2 {
+  font-size: 2.5rem;
   margin-bottom: 0.5rem;
 }
 
-.booking-details input {
-  padding: 0.6rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+.overlay-text p {
+  font-size: 1.2rem;
+  color: #b0f2e8;
 }
 
-.booking-details button {
-  padding: 0.8rem;
+.instructions-card {
+  background-color: #1c1f26;
+  border-left: 5px solid #1fdf64;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 10px;
+}
+
+.instructions-card h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
+
+.instructions-card ol {
+  margin-left: 1.5rem;
   font-size: 1rem;
-  background-color: #007BFF;
-  color: white;
+}
+
+.balance-display {
+  background-color: #1c1f26;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  text-align: center;
+  color: #1fdf64;
+}
+
+.booking-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.booking-form input,
+.booking-form select {
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: none;
+  background-color: #2b2f3b;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.booking-form label {
+  margin-top: 1rem;
+  display: block;
+  font-weight: 600;
+}
+
+.trip-options {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.trip-options label {
+  font-size: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.section-title {
+  margin-top: 3rem;
+  font-size: 2rem;
+  text-align: center;
+  color: #1fdf64;
+}
+
+.flight-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.flight-card {
+  background-color: #1c1f26;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.flight-card:hover {
+  transform: translateY(-5px);
+}
+
+.flight-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.flight-card h3 {
+  font-size: 1.4rem;
+  margin: 0.8rem;
+}
+
+.flight-card p {
+  font-size: 0.95rem;
+  margin: 0.5rem 0.8rem;
+}
+
+.book-button {
+  margin: 1rem;
+  background-color: #1fdf64;
+  color: #000;
+  padding: 0.75rem 1.2rem;
+  font-weight: bold;
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
-.loading {
+.book-button:hover {
+  background-color: #17c857;
+}
+
+.error-message {
+  color: #ff6b6b;
   text-align: center;
-  margin-top: 2rem;
-  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 1rem 0;
+}
+
+.success-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(20, 20, 20, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99;
+}
+
+.modal-content {
+  background: #1c1f26;
+  padding: 2rem;
+  border-radius: 10px;
+  text-align: center;
+  color: #1fdf64;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+.modal-content h2 {
+  margin-bottom: 1rem;
+}
+
+.modal-content button {
+  background-color: #1fdf64;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  color: #000;
+  font-weight: bold;
+  margin-top: 1rem;
+  cursor: pointer;
 }
 

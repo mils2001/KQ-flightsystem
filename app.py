@@ -12,7 +12,7 @@ load_dotenv()
 from routes.auth import auth_bp
 from routes.profile import profile_bp
 from routes.flights import flights_bp
-from routes.bookings import bookings_bp
+from routes.bookings  import bookings_bp
 
 app = Flask(__name__)
 
