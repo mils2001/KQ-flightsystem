@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Profile.css";
+import SendKQModal from "../components/SendKQModal";
+import RedeemFlightModal from "../components/RedeemFlightModal";
 
 const Profile: React.FC = () => {
   const [profile, setProfile] = useState<any>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
   const [claimCooldown, setClaimCooldown] = useState<number>(0);
   const [usdBalance, setUsdBalance] = useState<string>("0.00");
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [showRedeemModal, setShowRedeemModal] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -48,10 +52,10 @@ const Profile: React.FC = () => {
   }, []);
 
   const claimKQCoin = () => {
-    if (claimCooldown > 0) return alert("Please wait before claiming again.");
+    if (claimCooldown > 0) return;
     setProfile({ ...profile, balance: profile.balance + 2 });
     localStorage.setItem("lastClaim", Date.now().toString());
-    setClaimCooldown(86400); // 24hr in seconds
+    setClaimCooldown(86400);
   };
 
   const connectWallet = async () => {
@@ -87,9 +91,11 @@ const Profile: React.FC = () => {
               className="profile-pic"
             />
             <div className="user-info">
-              <h2>{profile.full_name || "User Name"}</h2>
+              <h2>
+                {profile.full_name || "User Name"}{" "}
+                {profile.is_verified && <span className="verified-badge">✔ Verified</span>}
+              </h2>
               <p className="email">{profile.email}</p>
-              {profile.is_verified && <span className="verified-badge">✔ Verified</span>}
             </div>
           </div>
           <div className="atm-right">
@@ -114,15 +120,38 @@ const Profile: React.FC = () => {
           </div>
 
           <div className="wallet-actions">
-            <button className="btn connect" onClick={connectWallet}>Connect MetaMask</button>
-            <button className="btn send">Send KQCoin</button>
-            <button className="btn redeem">Redeem for Flight</button>
+            <button className="btn connect" onClick={connectWallet}>🔗 Connect Metamask</button>
+            <button className="btn send" onClick={() => setShowSendModal(true)}>🚀 Send KQCoin</button>
+            <button className="btn redeem" onClick={() => setShowRedeemModal(true)}>✈️ Redeem Flight</button>
           </div>
         </div>
       </div>
+
+      {showSendModal && (
+        <SendKQModal
+          isOpen={showSendModal}
+          onClose={() => setShowSendModal(false)}
+          onSend={(recipient, amount) =>
+            console.log("Send", amount, "to", recipient)
+          }
+        />
+      )}
+
+      {showRedeemModal && (
+        <RedeemFlightModal
+          isOpen={showRedeemModal}
+          onClose={() => setShowRedeemModal(false)}
+          routes={[
+            { id: 1, origin: "Nairobi", destination: "Mombasa", price: 25 },
+            { id: 2, origin: "Kisumu", destination: "Eldoret", price: 18 },
+          ]}
+          onRedeem={(routeId) => console.log("Redeem flight ID:", routeId)}
+        />
+      )}
     </div>
   );
 };
 
 export default Profile;
+
 
