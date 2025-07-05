@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required
 from db import get_db_connection
 
 flights_bp = Blueprint('flights', __name__, url_prefix='/api/flights')
@@ -13,14 +13,29 @@ def get_all_flights():
     try:
         db = get_db_connection()
         cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT flight_number, route, flight_class, price, image_url FROM flights")
+
+        query = """
+            SELECT flight_number, route, flight_class, price, image_url,
+                   flight_date, flight_time
+            FROM flights
+        """
+        cursor.execute(query)
         flights = cursor.fetchall()
+
+        # Serialize datetime fields
+        for flight in flights:
+            if 'flight_time' in flight:
+                flight['flight_time'] = str(flight['flight_time'])
+            if 'flight_date' in flight:
+                flight['flight_date'] = str(flight['flight_date'])
+
         return jsonify(flights), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     finally:
         cursor.close()
         db.close()
+
 
 # =======================
 # SEARCH FLIGHTS
@@ -39,7 +54,12 @@ def search_flights():
         db = get_db_connection()
         cursor = db.cursor(dictionary=True)
 
-        query = "SELECT * FROM flights WHERE route = %s"
+        query = """
+            SELECT flight_number, route, flight_class, price, image_url,
+                   flight_date, flight_time
+            FROM flights
+            WHERE route = %s
+        """
         values = [route]
 
         if date:
@@ -53,6 +73,7 @@ def search_flights():
         cursor.execute(query, values)
         results = cursor.fetchall()
 
+        # Serialize datetime fields
         for flight in results:
             if 'flight_time' in flight:
                 flight['flight_time'] = str(flight['flight_time'])
