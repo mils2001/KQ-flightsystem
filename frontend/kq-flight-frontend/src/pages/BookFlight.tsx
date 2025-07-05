@@ -19,22 +19,10 @@ const marketingTexts = [
 ];
 
 const services = [
-  {
-    image: "https://i.imgur.com/1a1pw7M.jpeg",
-    title: "Baggage Information",
-  },
-  {
-    image: "https://i.imgur.com/1aMHtHV.jpeg",
-    title: "Search Holidays",
-  },
-  {
-    image: "https://i.imgur.com/dupHQnG.jpeg",
-    title: "Visa Requirements",
-  },
-  {
-    image: "https://i.imgur.com/fhK5MvR.jpeg",
-    title: "Travel Guidelines",
-  },
+  { image: "https://i.imgur.com/1a1pw7M.jpeg", title: "Baggage Information" },
+  { image: "https://i.imgur.com/1aMHtHV.jpeg", title: "Search Holidays" },
+  { image: "https://i.imgur.com/dupHQnG.jpeg", title: "Visa Requirements" },
+  { image: "https://i.imgur.com/fhK5MvR.jpeg", title: "Travel Guidelines" },
 ];
 
 const BookFlight: React.FC = () => {
@@ -76,8 +64,10 @@ const BookFlight: React.FC = () => {
       return;
     }
 
-    const match = flights.find(f => {
-      const [flightOrigin, flightDestination] = f.route.split(" to ").map((s: string) => s.trim().toLowerCase());
+    const match = flights.find((f) => {
+      const [flightOrigin, flightDestination] = f.route
+        .split(" to ")
+        .map((s: string) => s.trim().toLowerCase());
       return (
         flightOrigin === origin.trim().toLowerCase() &&
         flightDestination === destination.trim().toLowerCase()
@@ -112,12 +102,6 @@ const BookFlight: React.FC = () => {
       setError("Booking failed. Please try again.");
     }
   };
-
-  const destinations = flights.map((f) => ({
-    route: f.route,
-    price: f.price,
-    image: f.image_url || imageSlides[Math.floor(Math.random() * imageSlides.length)],
-  }));
 
   return (
     <div className="booking-page dark-theme">
@@ -182,26 +166,19 @@ const BookFlight: React.FC = () => {
         {bookingSuccess && <p className="success">🎉 Booking confirmed successfully!</p>}
       </div>
 
-      {/* Destination Section */}
-      <div className="destination-section">
-        <h2>🌍 Popular Destinations</h2>
-        <div className="destination-grid row-2">
-          {destinations.map((dest, idx) => (
-            <div key={idx} className="destination-card">
-              <img src={dest.image} alt={dest.route} />
-              <div className="card-content">
-                <h3>{dest.route}</h3>
-                <p>From KES {dest.price}</p>
-                <button onClick={() => setDestination(dest.route.split(" to ")[1])}>
-                  ➡ Book Now
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* How to Book Section */}
+      <div className="how-to-book">
+        <h2>✈️ How to Book a Flight</h2>
+        <ol>
+          <li>Enter your origin and destination cities.</li>
+          <li>Select your trip type: One Way or Round Trip.</li>
+          <li>Choose your departure (and return) date.</li>
+          <li>Fill in passenger name and number of seats.</li>
+          <li>Click <strong>Confirm Booking</strong> and you're set!</li>
+        </ol>
       </div>
 
-      {/* Travel Services Section */}
+      {/* Travel Services */}
       <div className="extras-section">
         <h2>🧳 Additional Services</h2>
         <div className="services-grid">
@@ -218,4 +195,5 @@ const BookFlight: React.FC = () => {
 };
 
 export default BookFlight;
+
 

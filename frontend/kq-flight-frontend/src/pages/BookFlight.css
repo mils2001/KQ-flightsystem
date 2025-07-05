@@ -222,3 +222,27 @@
   opacity: 0.6;
 }
 
+.how-to-book {
+  margin: 40px auto;
+  max-width: 700px;
+  background-color: #122e45;
+  border-radius: 10px;
+  padding: 20px;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(0,0,0,0.4);
+}
+
+.how-to-book h2 {
+  text-align: center;
+  color: #ffd700;
+  margin-bottom: 15px;
+}
+
+.how-to-book ol {
+  padding-left: 20px;
+  line-height: 1.8;
+}
+
+.how-to-book li {
+  margin-bottom: 10px;
+}
