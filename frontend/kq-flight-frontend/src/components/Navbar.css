@@ -1,49 +1,88 @@
-/* src/components/Navbar.css */
 .navbar {
+  background-color: #000;
+  color: #fff;
+  padding: 15px 30px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
-  background-color: #003366;
-  color: white;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  flex-wrap: wrap;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
 }
 
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
 }
 
 .nav-links a {
-  margin: 0 1rem;
-  color: white;
+  color: #fff;
   text-decoration: none;
-  font-weight: 500;
+  padding: 6px 12px;
+  transition: all 0.3s ease;
+  border-radius: 8px;
 }
 
 .nav-links a:hover {
-  text-decoration: underline;
+  background-color: goldenrod;
+  color: #000;
 }
 
-.nav-actions button {
-  margin-left: 1rem;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.login-btn {
-  background-color: transparent;
-  color: white;
-  border: 1px solid white;
-}
-
+.login-btn,
 .signup-btn {
-  background-color: #fcb900;
-  color: #003366;
+  background-color: #222;
+  border: 1px solid goldenrod;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-weight: bold;
 }
+
+.login-btn:hover,
+.signup-btn:hover {
+  background-color: gold;
+  color: #000;
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.settings {
+  position: relative;
+  cursor: pointer;
+}
+
+.settings span {
+  font-size: 20px;
+}
+
+.settings-dropdown {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background-color: #222;
+  border: 1px solid #555;
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.settings-dropdown a {
+  padding: 8px;
+  text-decoration: none;
+  color: #fff;
+  transition: 0.3s;
+}
+
+.settings-dropdown a:hover {
+  background-color: #444;
+}
+
