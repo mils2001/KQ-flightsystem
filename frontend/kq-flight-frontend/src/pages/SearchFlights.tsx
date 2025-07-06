@@ -45,7 +45,7 @@ export default function SearchFlights() {
 
   const handleCardClick = (flight: Flight) => {
     const confirmBook = window.confirm(
-      `✈️ Destination: ${flight.route}\n📦 Class: ${flight.flight_class}\n💵 Price: USD ${flight.price}\n⭐ Rating: ${flight.rating}\n\nWould you like to book this ticket?`
+      `✈️ Destination: ${flight.route}\n📦 Class: ${flight.flight_class}\n💵 Price: USD ${flight.price}`
     );
     if (confirmBook) {
       navigate(`/book/${flight.flight_number}`);
@@ -54,7 +54,6 @@ export default function SearchFlights() {
 
   const getSortedFlights = () => {
     let sorted = [...flights];
-
     if (sortOption === 'price-asc') {
       sorted.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
     } else if (sortOption === 'price-desc') {
@@ -77,18 +76,16 @@ export default function SearchFlights() {
       <div className="top-bar">
         <input
           type="text"
-          placeholder="🔍 Search by route..."
+          placeholder="🔍 Search by destination..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-
         <select value={sortOption} onChange={(e) => setSortOption(e.target.value)}>
           <option value="">Sort By</option>
           <option value="price-asc">💲 Price: Low to High</option>
           <option value="price-desc">💰 Price: High to Low</option>
           <option value="class">🎟️ Flight Class</option>
         </select>
-
         <button onClick={() => setDarkMode(!darkMode)}>
           {darkMode ? '☀ Light Mode' : '🌙 Dark Mode'}
         </button>
@@ -96,34 +93,36 @@ export default function SearchFlights() {
 
       {error && <div className="error-message">{error}</div>}
 
-      {getSortedFlights().map((flight) => (
-        <div
-          key={flight.flight_number}
-          className="flight-card"
-          onClick={() => handleCardClick(flight)}
-        >
-          <img src={flight.image_url} alt={flight.route} className="flight-img" />
-          <div className="flight-info">
-            <h3>{flight.route}</h3>
-            <p>Class: {flight.flight_class}</p>
-            <p>Price: USD {flight.price}</p>
-            <p className="stars">{renderStars(flight.rating)}</p>
+      <div className="flight-grid">
+        {getSortedFlights().map((flight) => (
+          <div
+            key={flight.flight_number}
+            className="flight-card"
+            onClick={() => handleCardClick(flight)}
+          >
+            <img src={flight.image_url} alt={flight.route} className="flight-image" />
+            <div className="flight-info">
+              <h3>{flight.route}</h3>
+              <p><strong>Class:</strong> {flight.flight_class}</p>
+              <p><strong>Price:</strong> USD {flight.price}</p>
+              <p className="stars">{renderStars(flight.rating)}</p>
 
-            <div className="services">
-              <strong>Services:</strong>
-              {flight.flight_class === 'Business' && (
-                <ul><li>🛋️ Free Lounge</li><li>🍾 Champagne</li><li>📶 Wi-Fi</li></ul>
-              )}
-              {flight.flight_class === 'Economy' && (
-                <ul><li>🍿 Snacks</li><li>🧳 Free Luggage</li></ul>
-              )}
-              {flight.flight_class === 'Regular' && (
-                <ul><li>🎒 1 Carry-on</li><li>🍽️ Paid Meals</li></ul>
-              )}
+              <div className="services">
+                <strong>�� Services:</strong>
+                {flight.flight_class === 'Business' && (
+                  <ul><li>🛋️ Free Lounge</li><li>🍾 Champagne</li><li>�� Wi-Fi</li></ul>
+                )}
+                {flight.flight_class === 'Economy' && (
+                  <ul><li>🍿 Snacks</li><li>🧳 Free Luggage</li></ul>
+                )}
+                {flight.flight_class === 'Regular' && (
+                  <ul><li>🎒 1 Carry-on</li><li>🍽️ Paid Meals</li></ul>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

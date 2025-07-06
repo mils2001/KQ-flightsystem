@@ -1,81 +1,99 @@
 .flight-container {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  background-color: #111; /* Dark mode by default */
-  color: #fff;
+  padding: 2rem;
+  background: #f5f7fb;
   min-height: 100vh;
+  transition: background 0.5s ease;
+}
+
+.flight-container.dark {
+  background-color: #1e1e2f;
+  color: white;
 }
 
 .top-bar {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
   flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
 }
 
 .top-bar input,
 .top-bar select,
 .top-bar button {
-  padding: 12px;
+  padding: 0.8rem 1rem;
+  font-size: 1rem;
   border-radius: 8px;
-  border: 1px solid #444;
-  font-size: 16px;
-  flex: 1 1 250px; /* Wider inputs */
-  background-color: #222;
-  color: #fff;
+  border: none;
+  outline: none;
+  background: #e6eef7;
+}
+
+.flight-container.dark .top-bar input,
+.flight-container.dark .top-bar select,
+.flight-container.dark .top-bar button {
+  background: #333;
+  color: white;
+}
+
+.flight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
 }
 
 .flight-card {
-  display: flex;
-  gap: 25px;
-  padding: 20px;
+  background: white;
   border-radius: 16px;
-  margin-bottom: 25px;
-  background-color: #222;
-  color: #eee;
-  transition: transform 0.2s, box-shadow 0.3s;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.flight-container.dark .flight-card {
+  background: #2a2a3d;
+  color: white;
 }
 
 .flight-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+  transform: scale(1.03);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
-.flight-img {
-  width: 180px;
-  height: 120px;
+.flight-image {
+  width: 100%;
+  height: 240px;
   object-fit: cover;
-  border-radius: 10px;
 }
 
 .flight-info {
-  flex: 1;
+  padding: 1rem;
 }
 
 .flight-info h3 {
-  margin: 0;
-  font-size: 1.5em;
-  color: #4db8ff;
+  font-size: 1.4rem;
+  margin-bottom: 0.5rem;
 }
 
-.services ul {
-  padding-left: 20px;
-  margin: 0;
+.flight-info p {
+  margin: 0.3rem 0;
 }
 
 .stars {
   color: gold;
-  font-size: 20px;
+  font-size: 1.2rem;
+}
+
+.services ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.2rem;
 }
 
 .error-message {
-  background-color: #661111;
-  color: #ffaaaa;
-  padding: 10px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  color: red;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-weight: bold;
 }
 
