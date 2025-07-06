@@ -1,4 +1,3 @@
-// src/pages/Home.tsx
 import React, { useEffect, useState } from 'react';
 import './Home.css';
 
@@ -8,15 +7,56 @@ const slides = [
   '/assets/slide3.jpg',
 ];
 
+const tripDestinations = [
+  { name: 'Nairobi', link: '/flights?to=Nairobi' },
+  { name: 'Mombasa', link: '/flights?to=Mombasa' },
+  { name: 'Dubai', link: '/flights?to=Dubai' },
+  { name: 'London', link: '/flights?to=London' },
+  { name: 'New York', link: '/flights?to=New%20York' },
+];
+
+const featureLinks = [
+  { label: '📱 e-SIM Services', href: '/esim' },
+  { label: '🏨 Hotels', href: '/hotels' },
+  { label: '🚗 Car Rentals', href: '/car-rentals' },
+];
+
+const testimonials = [
+  { name: 'Jane Mwangi', comment: 'The blockchain rewards are revolutionary!' },
+  { name: 'John Doe', comment: 'Best airline experience I’ve ever had.' },
+  { name: 'Amina Ali', comment: 'KQ-Coin made my trip even better. Love it!' },
+];
+
+const galleryImages = [
+  { src: "https://i.imgur.com/jM4UrOZ.jpeg", alt: "Book Flights", label: "Book Flights", href: "/book" },
+  { src: "https://i.imgur.com/w7nieOM.jpeg", alt: "Search Flights", label: "Search Flights", href: "/flights" },
+  { src: "https://i.imgur.com/TJqDvUJ.jpeg", alt: "User Profile", label: "My Profile", href: "/profile" },
+  { src: "https://i.imgur.com/EQQrLmX.jpeg", alt: "About Us", label: "About Us", href: "/about" },
+  { src: "https://i.imgur.com/alZpv7R.jpeg", alt: "Contact Us", label: "Contact", href: "/contact" },
+  { src: "https://i.imgur.com/MZvQ6HJ.jpeg", alt: "Private Flights", label: "Private Jet", href: "/private" },
+  { src: "https://i.imgur.com/W3BaYTG.jpeg", alt: "Catering", label: "Catering", href: "/catering" },
+  { src: "https://i.imgur.com/WIXdHTC.jpeg", alt: "Tours", label: "Tours", href: "/tours" },
+  { src: "https://i.imgur.com/SqL4OEZ.jpeg", alt: "Holiday", label: "Holidays", href: "/holidays" },
+];
+
 const Home: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [darkMode, setDarkMode] = useState(false);
+  const [kqCoinValue, setKqCoinValue] = useState('$0.25');
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 4000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const random = (0.20 + Math.random() * 0.1).toFixed(2);
+      setKqCoinValue(`$${random}`);
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -33,60 +73,91 @@ const Home: React.FC = () => {
         </div>
       </div>
 
+      <div className="sidebar-feedback">
+        <a href="/feedback">📝 Send Feedback</a>
+      </div>
+
       <div className="home-content">
-        <div className="mission">
+        <section className="mission" data-aos="fade-up">
           <h2>🚀 Our Mission</h2>
           <p>
-            Kenya Airways is pioneering the first Web3-powered airline service. 
-            We provide global flight services while rewarding our clients through our native token — <strong>KQ-COIN</strong>. 
-            As we integrate blockchain into aviation, KQ-COIN will empower users to earn, trade, and redeem rewards globally. 
-            We are currently in our integration stages, targeting launches on major exchanges including Binance, OKX, and Bitget. 
-            Join us on this innovative journey!
+            Kenya Airways is pioneering the first Web3-powered airline service with real rewards and next-gen features for modern travelers.
           </p>
-        </div>
+        </section>
 
-        <div className="button-group">
-          <button>🎟️ Book a Flight</button>
-          <button>🔍 Search Flights</button>
-          <button>📞 Contact Us</button>
-        </div>
+        <section className="features-table" data-aos="fade-up">
+          <h2>🌍 Why Fly With Us?</h2>
+          <table>
+            <tbody>
+              <tr><td>🏆 Award-winning service</td></tr>
+              <tr><td>✈️ Global connectivity</td></tr>
+              <tr><td>🛡️ Unmatched safety & comfort</td></tr>
+              <tr><td>💰 Web3 rewards through KQ-COIN</td></tr>
+              <tr><td>🔗 Blockchain tech integration</td></tr>
+            </tbody>
+          </table>
+        </section>
 
-        <div className="features">
-          <h2>�� Why Fly With Us?</h2>
-          <ul>
-            <li>🏆 Award-winning service</li>
-            <li>✈️ Global connectivity</li>
-            <li>🛡️ Unmatched safety & comfort</li>
-            <li>💰 Web3 rewards through KQ-COIN</li>
-            <li>🔗 Upcoming integration with blockchain technology</li>
-          </ul>
-        </div>
-
-        <div className="gallery">
+        <section className="gallery" data-aos="zoom-in">
           <h2>📸 Explore Our Experience</h2>
           <div className="gallery-images">
-            <a href="/book" className="gallery-item">
-              <img src="https://i.imgur.com/jM4UrOZ.jpeg" alt="Book Flights" />
-              <span className="gallery-label">🎟️ Book Flights ➡️</span>
-            </a>
-            <a href="/search" className="gallery-item">
-              <img src="https://i.imgur.com/w7nieOM.jpeg" alt="Search Flights" />
-              <span className="gallery-label">🔍 Search Flights ➡️</span>
-            </a>
-            <a href="/profile" className="gallery-item">
-              <img src="https://i.imgur.com/TJqDvUJ.jpeg" alt="User Profile" />
-              <span className="gallery-label">👤 View Profile ➡️</span>
-            </a>
-            <a href="/about" className="gallery-item">
-              <img src="https://i.imgur.com/EQQrLmX.jpeg" alt="About Us" />
-              <span className="gallery-label">📖 About Us ➡️</span>
-            </a>
-            <a href="/contact" className="gallery-item">
-              <img src="https://i.imgur.com/alZpv7R.jpeg" alt="Contact Us" />
-              <span className="gallery-label">📞 Contact Us ➡️</span>
-            </a>
+            {galleryImages.map(({ src, alt, label, href }, i) => (
+              <a href={href} key={i} className="gallery-item">
+                <img src={src} alt={alt} />
+                <span className="gallery-label">{label}</span>
+              </a>
+            ))}
           </div>
-        </div>
+        </section>
+
+        <section className="feature-icons" data-aos="fade-up">
+          <h2>🧰 Additional Services</h2>
+          <div className="feature-buttons">
+            {featureLinks.map((feature, i) => (
+              <a key={i} href={feature.href} className="feature-button">
+                {feature.label}
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <section className="trip-planner" data-aos="fade-up">
+          <h2>🧭 Plan Your Trip</h2>
+          <p>Choose a destination to start planning your journey:</p>
+          <table className="trip-table">
+            <thead>
+              <tr>
+                <th>Destination</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tripDestinations.map((trip, index) => (
+                <tr key={index}>
+                  <td>{trip.name}</td>
+                  <td><a href={trip.link} className="trip-link">Book Now</a></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        <section className="kq-coin-stats" data-aos="zoom-in">
+          <h2>💸 Live KQ-COIN Value</h2>
+          <p>Current Value: <strong>{kqCoinValue}</strong></p>
+        </section>
+
+        <section className="testimonials" data-aos="fade-up">
+          <h2>🗣️ What Our Travelers Say</h2>
+          <div className="testimonial-list">
+            {testimonials.map((t, i) => (
+              <blockquote key={i}>
+                <p>“{t.comment}”</p>
+                <footer>- {t.name}</footer>
+              </blockquote>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );
