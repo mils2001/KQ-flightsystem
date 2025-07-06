@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./BookFlight.css";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const imageSlides = [
   "https://i.imgur.com/jM4UrOZ.jpeg",
@@ -19,10 +21,10 @@ const marketingTexts = [
 ];
 
 const services = [
-  { image: "https://i.imgur.com/1a1pw7M.jpeg", title: "Baggage Information" },
-  { image: "https://i.imgur.com/1aMHtHV.jpeg", title: "Search Holidays" },
-  { image: "https://i.imgur.com/dupHQnG.jpeg", title: "Visa Requirements" },
-  { image: "https://i.imgur.com/fhK5MvR.jpeg", title: "Travel Guidelines" },
+  { image: "https://i.imgur.com/1a1pw7M.jpeg", title: "Baggage Info", link: "/baggage" },
+  { image: "https://i.imgur.com/1aMHtHV.jpeg", title: "Search Holidays", link: "/search" },
+  { image: "https://i.imgur.com/dupHQnG.jpeg", title: "Visa Requirements", link: "/visa" },
+  { image: "https://i.imgur.com/fhK5MvR.jpeg", title: "Travel Guidelines", link: "/guidelines" },
 ];
 
 const BookFlight: React.FC = () => {
@@ -44,6 +46,7 @@ const BookFlight: React.FC = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
+    AOS.init({ duration: 800 });
     axios
       .get("http://127.0.0.1:5000/api/flights")
       .then((res) => setFlights(res.data.flights || res.data))
@@ -59,7 +62,7 @@ const BookFlight: React.FC = () => {
   }, []);
 
   const handleBooking = async () => {
-    if (!origin || !destination || !departureDate || !passengerName || seats < 1) {
+    if (!origin || !destination || !departureDate || !passengerName || seats <= 0) {
       setError("Please fill in all required fields.");
       return;
     }
@@ -106,7 +109,7 @@ const BookFlight: React.FC = () => {
   return (
     <div className="booking-page dark-theme">
       {/* Slideshow */}
-      <div className="slideshow">
+      <div className="slideshow" data-aos="fade-in">
         <img src={imageSlides[currentSlide]} alt="slide" className="slide-image" />
         <div className="marketing-text">
           <h1>{marketingTexts[currentText]}</h1>
@@ -115,78 +118,49 @@ const BookFlight: React.FC = () => {
       </div>
 
       {/* Booking Section */}
-      <div className="booking-section">
+      <div className="booking-section" data-aos="fade-up">
         <h2>🛫 Book Your Flight</h2>
         <p className="user-balance">Wallet Balance: ${userBalance}</p>
-        <div className="form-grid column-2">
-          <input
-            type="text"
-            value={origin}
-            onChange={(e) => setOrigin(e.target.value)}
-            placeholder="Where from?"
-          />
-
-          <input
-            type="text"
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-            placeholder="Where to?"
-          />
-
+        <div className="form-grid">
+          <input type="text" value={origin} onChange={(e) => setOrigin(e.target.value)} placeholder="Where from?" />
+          <input type="text" value={destination} onChange={(e) => setDestination(e.target.value)} placeholder="Where to?" />
           <select value={tripType} onChange={(e) => setTripType(e.target.value)}>
             <option value="oneway">One Way</option>
             <option value="roundtrip">Round Trip</option>
           </select>
-
           <input type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} />
-
           {tripType === "roundtrip" && (
             <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
           )}
-
-          <input
-            type="text"
-            value={passengerName}
-            onChange={(e) => setPassengerName(e.target.value)}
-            placeholder="Passenger name"
-          />
-
-          <input
-            type="number"
-            min="1"
-            value={seats}
-            onChange={(e) => setSeats(Number(e.target.value))}
-            placeholder="Seats"
-          />
-
+          <input type="text" value={passengerName} onChange={(e) => setPassengerName(e.target.value)} placeholder="Passenger Name" />
+          <input type="number" min="1" value={seats} onChange={(e) => setSeats(Number(e.target.value))} placeholder="Seats" />
           <button onClick={handleBooking}>Confirm Booking</button>
         </div>
-
         {error && <p className="error">{error}</p>}
         {bookingSuccess && <p className="success">🎉 Booking confirmed successfully!</p>}
       </div>
 
       {/* How to Book Section */}
-      <div className="how-to-book">
+      <div className="how-to-book" data-aos="fade-right">
         <h2>✈️ How to Book a Flight</h2>
         <ol>
           <li>Enter your origin and destination cities.</li>
-          <li>Select your trip type: One Way or Round Trip.</li>
-          <li>Choose your departure (and return) date.</li>
-          <li>Fill in passenger name and number of seats.</li>
-          <li>Click <strong>Confirm Booking</strong> and you're set!</li>
+          <li>Select trip type: One Way or Round Trip.</li>
+          <li>Choose departure (and return) date.</li>
+          <li>Fill in passenger details.</li>
+          <li>Click <strong>Confirm Booking</strong>.</li>
         </ol>
       </div>
 
-      {/* Travel Services */}
-      <div className="extras-section">
+      {/* Services Section */}
+      <div className="extras-section" data-aos="fade-left">
         <h2>🧳 Additional Services</h2>
         <div className="services-grid">
           {services.map((s, idx) => (
-            <div key={idx} className="service-card">
+            <a href={s.link} key={idx} className="service-card">
               <img src={s.image} alt={s.title} />
               <h4>{s.title}</h4>
-            </div>
+            </a>
           ))}
         </div>
       </div>
@@ -195,5 +169,4 @@ const BookFlight: React.FC = () => {
 };
 
 export default BookFlight;
-
 
