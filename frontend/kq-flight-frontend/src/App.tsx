@@ -1,5 +1,5 @@
 // src/App.tsx
-import React from 'react';
+import React, { useEffect } from 'react'; // ✅ Import useEffect
 import { Routes, Route } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
@@ -7,9 +7,16 @@ import Home from './pages/Home';
 import SearchFlights from './pages/SearchFlights';
 import BookFlight from './pages/BookFlight';
 import Profile from './pages/Profile';
-import Login from './pages/Login'; // create if not already
+import Login from './pages/Login';
+
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const App: React.FC = () => {
+  useEffect(() => {
+    AOS.init({ duration: 800 });
+  }, []);
+
   return (
     <>
       
