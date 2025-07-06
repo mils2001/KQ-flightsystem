@@ -8,17 +8,6 @@ const slides = [
   '/assets/slide3.jpg',
 ];
 
-const galleryImages = [
-  'https://i.imgur.com/jM4UrOZ.jpeg',
-  'https://i.imgur.com/w7nieOM.jpeg',
-  'https://i.imgur.com/TJqDvUJ.jpeg',
-  'https://i.imgur.com/EQQrLmX.jpeg',
-  'https://i.imgur.com/alZpv7R.jpeg',
-  'https://i.imgur.com/jcAPrzO.jpeg',
-  'https://i.imgur.com/GvUbhyW.jpeg',
-  'https://i.imgur.com/MZvQ6HJ.jpeg',
-];
-
 const Home: React.FC = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [darkMode, setDarkMode] = useState(false);
@@ -63,7 +52,7 @@ const Home: React.FC = () => {
         </div>
 
         <div className="features">
-          <h2>🌍 Why Fly With Us?</h2>
+          <h2>�� Why Fly With Us?</h2>
           <ul>
             <li>🏆 Award-winning service</li>
             <li>✈️ Global connectivity</li>
@@ -76,9 +65,26 @@ const Home: React.FC = () => {
         <div className="gallery">
           <h2>📸 Explore Our Experience</h2>
           <div className="gallery-images">
-            {galleryImages.map((img, index) => (
-              <img key={index} src={img} alt={`Gallery ${index + 1}`} />
-            ))}
+            <a href="/book" className="gallery-item">
+              <img src="https://i.imgur.com/jM4UrOZ.jpeg" alt="Book Flights" />
+              <span className="gallery-label">🎟️ Book Flights ➡️</span>
+            </a>
+            <a href="/search" className="gallery-item">
+              <img src="https://i.imgur.com/w7nieOM.jpeg" alt="Search Flights" />
+              <span className="gallery-label">🔍 Search Flights ➡️</span>
+            </a>
+            <a href="/profile" className="gallery-item">
+              <img src="https://i.imgur.com/TJqDvUJ.jpeg" alt="User Profile" />
+              <span className="gallery-label">👤 View Profile ➡️</span>
+            </a>
+            <a href="/about" className="gallery-item">
+              <img src="https://i.imgur.com/EQQrLmX.jpeg" alt="About Us" />
+              <span className="gallery-label">📖 About Us ➡️</span>
+            </a>
+            <a href="/contact" className="gallery-item">
+              <img src="https://i.imgur.com/alZpv7R.jpeg" alt="Contact Us" />
+              <span className="gallery-label">📞 Contact Us ➡️</span>
+            </a>
           </div>
         </div>
       </div>
@@ -87,5 +93,4 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-
 
