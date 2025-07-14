@@ -1,0 +1,64 @@
+[
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "claimTokens",
+    "outputs": [],
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      { "name": "recipient", "type": "address" },
+      { "name": "amount", "type": "uint256" }
+    ],
+    "name": "transferTokens",
+    "outputs": [],
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [],
+    "name": "redeemTokens",
+    "outputs": [],
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [{ "name": "amount", "type": "uint256" }],
+    "name": "requestP2PTrade",
+    "outputs": [],
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [{ "name": "requestId", "type": "uint256" }],
+    "name": "acceptP2PRequest",
+    "outputs": [],
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [{ "name": "user", "type": "address" }],
+    "name": "getBalance",
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [],
+    "name": "getP2PRequests",
+    "outputs": [
+      {
+        "components": [
+          { "name": "id", "type": "uint256" },
+          { "name": "sender", "type": "address" },
+          { "name": "amount", "type": "uint256" }
+        ],
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "type": "function"
+  }
+]

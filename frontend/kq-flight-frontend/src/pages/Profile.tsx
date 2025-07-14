@@ -1,157 +1,167 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-import "./Profile.css";
-import SendKQModal from "../components/SendKQModal";
-import RedeemFlightModal from "../components/RedeemFlightModal";
+// src/pages/Profile.tsx
+import React, { useEffect, useState } from 'react';
+import { ethers } from 'ethers';
+import './Profile.css';
+import QRCode from 'qrcode.react';
+import kqcoinAbi from '../abi/KQCoin.json';
 
-const Profile: React.FC = () => {
-  const [profile, setProfile] = useState<any>(null);
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
-  const [claimCooldown, setClaimCooldown] = useState<number>(0);
-  const [usdBalance, setUsdBalance] = useState<string>("0.00");
-  const [showSendModal, setShowSendModal] = useState(false);
-  const [showRedeemModal, setShowRedeemModal] = useState(false);
+const contractAddress = '0xYourContractAddressHere'; // Replace with your real contract address
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const config = { headers: { Authorization: `Bearer ${token}` } };
+const Profile = () => {
+  const [account, setAccount] = useState('');
+  const [balance, setBalance] = useState('0');
+  const [claimCooldown, setClaimCooldown] = useState<number | null>(null);
+  const [isClaimed, setIsClaimed] = useState(false);
+  const [p2pRequests, setP2pRequests] = useState<any[]>([]);
+  const [myRequests, setMyRequests] = useState<any[]>([]);
 
-        const response = await axios.get("http://127.0.0.1:5000/api/profile", config);
-        setProfile(response.data);
-
-        const qrResponse = await axios.get("http://127.0.0.1:5000/api/profile/qr", {
-          headers: config.headers,
-          responseType: "blob",
-        });
-        const qrUrl = URL.createObjectURL(qrResponse.data);
-        setQrCodeUrl(qrUrl);
-
-        const usdRate = 1.5;
-        setUsdBalance((response.data.balance * usdRate).toFixed(2));
-
-        const lastClaim = localStorage.getItem("lastClaim");
-        if (lastClaim) {
-          const timeDiff = 86400000 - (Date.now() - parseInt(lastClaim));
-          if (timeDiff > 0) setClaimCooldown(Math.floor(timeDiff / 1000));
-        }
-      } catch (error) {
-        console.error("Failed to fetch profile:", error);
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setClaimCooldown((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const claimKQCoin = () => {
-    if (claimCooldown > 0) return;
-    setProfile({ ...profile, balance: profile.balance + 2 });
-    localStorage.setItem("lastClaim", Date.now().toString());
-    setClaimCooldown(86400);
-  };
+  const provider = new ethers.BrowserProvider((window as any).ethereum);
+  const contract = new ethers.Contract(contractAddress, kqcoinAbi, provider);
 
   const connectWallet = async () => {
-    if (typeof window.ethereum !== "undefined") {
-      try {
-        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        alert(`Connected to Metamask: ${accounts[0]}`);
-      } catch (error) {
-        console.error("Metamask connection failed", error);
-      }
-    } else {
-      alert("Metamask not installed.");
+    if (!(window as any).ethereum) return alert('Install MetaMask!');
+    const [addr] = await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+    setAccount(addr);
+  };
+
+  const fetchBalance = async () => {
+    if (!account) return;
+    const bal = await contract.getBalance(account);
+    setBalance(ethers.formatEther(bal));
+  };
+
+  const claimTokens = async () => {
+    try {
+      const signer = await provider.getSigner();
+      const contractWithSigner = contract.connect(signer);
+
+      await contractWithSigner.claimTokens();
+      setIsClaimed(true);
+      setClaimCooldown(Date.now() + 24 * 60 * 60 * 1000);
+    } catch (err) {
+      console.error('Claim failed', err);
     }
   };
 
-  const formatTime = (seconds: number) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h}h ${m}m ${s}s`;
+  const sendTokens = async (recipient: string, amount: string) => {
+    const signer = await provider.getSigner();
+    const contractWithSigner = contract.connect(signer);
+
+    const tx = await contractWithSigner.transferTokens(recipient, ethers.parseEther(amount));
+    await tx.wait();
+    fetchBalance();
   };
 
-  if (!profile) return <div className="loading">Loading profile...</div>;
+  const redeemTokens = async () => {
+    const signer = await provider.getSigner();
+    const contractWithSigner = contract.connect(signer);
+
+    const tx = await contractWithSigner.redeemTokens();
+    await tx.wait();
+    fetchBalance();
+  };
+
+  const submitP2PRequest = async (amount: string) => {
+    const signer = await provider.getSigner();
+    const contractWithSigner = contract.connect(signer);
+
+    const tx = await contractWithSigner.requestP2PTrade(ethers.parseEther(amount));
+    await tx.wait();
+  };
+
+  const fetchP2PRequests = async () => {
+    const requests = await contract.getP2PRequests();
+    setP2pRequests(requests);
+  };
+
+  const acceptP2PRequest = async (requestId: number) => {
+    const signer = await provider.getSigner();
+    const contractWithSigner = contract.connect(signer);
+
+    const tx = await contractWithSigner.acceptP2PRequest(requestId);
+    await tx.wait();
+    fetchP2PRequests();
+  };
+
+  useEffect(() => {
+    connectWallet();
+  }, []);
+
+  useEffect(() => {
+    if (account) {
+      fetchBalance();
+      fetchP2PRequests();
+    }
+  }, [account]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (claimCooldown && Date.now() >= claimCooldown) {
+        setIsClaimed(false);
+        setClaimCooldown(null);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [claimCooldown]);
 
   return (
-    <div className="profile-container">
-      <div className="profile-wrapper">
-        <div className="atm-card">
-          <div className="atm-left">
-            <img
-              src={profile.profile_pic || "https://i.imgur.com/7ZVofHE.jpeg"}
-              alt="Profile"
-              className="profile-pic"
-            />
-            <div className="user-info">
-              <h2>
-                {profile.full_name || "User Name"}{" "}
-                {profile.is_verified && <span className="verified-badge">✔ Verified</span>}
-              </h2>
-              <p className="email">{profile.email}</p>
-            </div>
-          </div>
-          <div className="atm-right">
-            <img src={qrCodeUrl} alt="QR Code" className="atm-qr" />
-            <p className="user-id">ID: {profile.user_id || "N/A"}</p>
-          </div>
+    <div className="profile-page">
+      <div className="atm-card">
+        <div className="card-header">
+          <h2>KQCoin Wallet</h2>
         </div>
-
-        <div className="wallet-overview">
-          <div className="wallet-info">
-            <h3>KQCoin Wallet</h3>
-            <p><strong>Balance:</strong> {profile.balance} KQCoin</p>
-            <p><strong>USD Value:</strong> ~${usdBalance} USD</p>
-            <p><strong>Wallet:</strong> {profile.wallet_address}</p>
-            <button
-              className="claim-btn"
-              onClick={claimKQCoin}
-              disabled={claimCooldown > 0}
-            >
-              {claimCooldown > 0 ? `Next Claim in ${formatTime(claimCooldown)}` : "Claim 2 KQCoin"}
-            </button>
-          </div>
-
-          <div className="wallet-actions">
-            <button className="btn connect" onClick={connectWallet}>🔗 Connect Metamask</button>
-            <button className="btn send" onClick={() => setShowSendModal(true)}>🚀 Send KQCoin</button>
-            <button className="btn redeem" onClick={() => setShowRedeemModal(true)}>✈️ Redeem Flight</button>
-          </div>
+        <div className="card-body">
+          <p><strong>User:</strong> {account.slice(0, 6)}...{account.slice(-4)} ✅</p>
+          <p><strong>Balance:</strong> {balance} KQCoin</p>
+          <QRCode value={account} size={80} />
         </div>
       </div>
 
-      {showSendModal && (
-        <SendKQModal
-          isOpen={showSendModal}
-          onClose={() => setShowSendModal(false)}
-          onSend={(recipient, amount) =>
-            console.log("Send", amount, "to", recipient)
-          }
-        />
-      )}
+      <div className="wallet-overview">
+        <h3>Wallet Overview</h3>
+        <p><strong>Claim Rewards:</strong></p>
+        <button className="claim-button" onClick={claimTokens} disabled={isClaimed}>
+          {isClaimed ? `Next claim in ${Math.ceil((claimCooldown! - Date.now()) / 3600000)}h` : 'Claim 2 KQCoin'}
+        </button>
 
-      {showRedeemModal && (
-        <RedeemFlightModal
-          isOpen={showRedeemModal}
-          onClose={() => setShowRedeemModal(false)}
-          routes={[
-            { id: 1, origin: "Nairobi", destination: "Mombasa", price: 25 },
-            { id: 2, origin: "Kisumu", destination: "Eldoret", price: 18 },
-          ]}
-          onRedeem={(routeId) => console.log("Redeem flight ID:", routeId)}
-        />
-      )}
+        <div className="actions">
+          <input type="text" id="recipient" placeholder="Recipient Address" />
+          <input type="text" id="amount" placeholder="Amount" />
+          <button onClick={() => {
+            const recipient = (document.getElementById('recipient') as HTMLInputElement).value;
+            const amount = (document.getElementById('amount') as HTMLInputElement).value;
+            sendTokens(recipient, amount);
+          }}>
+            Send KQCoin
+          </button>
+
+          <button onClick={redeemTokens}>Redeem for Tickets</button>
+        </div>
+
+        <div className="p2p-section">
+          <h3>P2P Marketplace</h3>
+          <input type="text" id="p2pAmount" placeholder="Amount to Request" />
+          <button onClick={() => {
+            const amount = (document.getElementById('p2pAmount') as HTMLInputElement).value;
+            submitP2PRequest(amount);
+          }}>
+            Submit P2P Request
+          </button>
+
+          <h4>Available Requests</h4>
+          <ul>
+            {p2pRequests.map((req, idx) => (
+              <li key={idx}>
+                {req.sender.slice(0, 6)}...{req.sender.slice(-4)} wants {ethers.formatEther(req.amount)} KQCoin
+                <button onClick={() => acceptP2PRequest(req.id)}>Accept</button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default Profile;
-
 
