@@ -1,183 +1,115 @@
-/* src/pages/Profile.css */
-
-.profile-page {
+.profile-container {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
   gap: 2rem;
   padding: 2rem;
-  background: #101820;
-  color: #ffffff;
-  font-family: 'Segoe UI', sans-serif;
-  justify-content: center;
+  background: #121212;
+  color: white;
+  min-height: 100vh;
 }
 
-/* ATM Card Style */
-.atm-card {
-  background: linear-gradient(135deg, #21242f, #1a1d27);
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-  width: 320px;
-  height: 200px;
-  padding: 1.5rem;
-  color: #ffffff;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: transform 0.3s ease-in-out;
-}
-
-.atm-card:hover {
-  transform: translateY(-5px);
-}
-
-.card-header h2 {
-  margin: 0;
-  font-size: 1.3rem;
-  color: #f1c40f;
-}
-
-.card-body p {
-  margin: 0.5rem 0;
-  font-size: 0.95rem;
-  line-height: 1.4;
-}
-
-.card-body {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.card-body canvas {
-  margin-top: 0.5rem;
-  border: 2px solid #f1c40f;
-  padding: 4px;
-  background-color: #fff;
-}
-
-/* Wallet Overview Section */
-.wallet-overview {
-  background: #1b1f2d;
+/* Profile Card */
+.profile-card {
+  background: #1e1e1e;
   padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  border-radius: 15px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+  width: 350px;
+}
+.profile-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 3px solid #ff6600;
+}
+.qrcode {
+  margin: 1rem auto;
+}
+.status {
+  color: #4caf50;
+  font-weight: bold;
+}
+.balance {
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+/* Wallet */
+.wallet-card {
+  background: #1e1e1e;
+  padding: 1.5rem;
+  border-radius: 15px;
+  width: 400px;
+  text-align: center;
+}
+.wallet-actions {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.wallet-actions input {
+  padding: 0.5rem;
+  border-radius: 10px;
+  border: none;
+}
+.wallet-actions button {
+  background: #ff6600;
+  border: none;
+  padding: 0.7rem;
+  border-radius: 10px;
+  color: white;
+  cursor: pointer;
+}
+.wallet-actions button:hover {
+  background: #e65c00;
+}
+.claim-btn {
+  margin: 1rem 0;
+  padding: 0.8rem;
+  border-radius: 10px;
+  border: none;
+  background: #ff6600;
+  color: white;
+  cursor: pointer;
+}
+.claim-btn:disabled {
+  background: #555;
+}
+
+/* P2P */
+.p2p-card {
+  background: #1e1e1e;
+  padding: 1.5rem;
+  border-radius: 15px;
   width: 450px;
 }
-
-.wallet-overview h3 {
-  margin-top: 0;
-  color: #f1c40f;
-}
-
-.wallet-overview p {
-  margin: 0.5rem 0;
-}
-
-.claim-button {
-  background-color: #27ae60;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.2rem;
-  border-radius: 8px;
-  cursor: pointer;
-  margin: 0.5rem 0 1rem 0;
-  font-weight: bold;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.claim-button:hover:not([disabled]) {
-  background-color: #2ecc71;
-}
-
-.claim-button[disabled] {
-  background-color: #555;
-  cursor: not-allowed;
-}
-
-/* Send / Redeem Actions */
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.actions input {
-  padding: 0.6rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-}
-
-.actions button {
-  padding: 0.6rem 1rem;
-  border: none;
-  border-radius: 8px;
-  background-color: #2980b9;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.actions button:hover {
-  background-color: #3498db;
-}
-
-/* P2P Marketplace */
-.p2p-section {
-  margin-top: 2rem;
-}
-
-.p2p-section input {
-  padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #bbb;
-  margin-bottom: 0.5rem;
+.p2p-card input {
   width: 100%;
-}
-
-.p2p-section button {
-  margin-top: 0.5rem;
-  padding: 0.6rem 1rem;
-  background-color: #8e44ad;
-  color: white;
+  margin: 0.5rem 0;
+  padding: 0.7rem;
+  border-radius: 10px;
   border: none;
-  border-radius: 6px;
-  font-weight: bold;
+}
+.p2p-card button {
+  background: #ff6600;
+  border: none;
+  padding: 0.7rem;
+  border-radius: 10px;
+  color: white;
   cursor: pointer;
 }
-
-.p2p-section button:hover {
-  background-color: #9b59b6;
-}
-
-.p2p-section ul {
-  list-style: none;
-  padding-left: 0;
+.p2p-card ul {
   margin-top: 1rem;
+  list-style: none;
+  padding: 0;
 }
-
-.p2p-section li {
-  background: #2c3e50;
-  padding: 0.75rem;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.p2p-section li button {
-  padding: 0.4rem 0.8rem;
-  background-color: #27ae60;
-  border: none;
-  border-radius: 6px;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.p2p-section li button:hover {
-  background-color: #2ecc71;
+.p2p-card li {
+  background: #2a2a2a;
+  padding: 0.7rem;
+  margin: 0.5rem 0;
+  border-radius: 10px;
 }
 

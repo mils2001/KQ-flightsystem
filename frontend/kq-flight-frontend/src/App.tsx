@@ -1,16 +1,16 @@
 // src/App.tsx
-import React, { useEffect } from 'react'; // ✅ Import useEffect
-import { Routes, Route } from 'react-router-dom';
+import React, { useEffect } from "react";
+import { Routes, Route } from "react-router-dom";
 
-import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import SearchFlights from './pages/SearchFlights';
-import BookFlight from './pages/BookFlight';
-import Profile from './pages/Profile';
-import Login from './pages/Login';
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import SearchFlights from "./pages/SearchFlights";
+import BookFlight from "./pages/BookFlight";
+import Profile from "./pages/Profile";
+import Login from "./pages/Login";
 
-import AOS from 'aos';
-import 'aos/dist/aos.css';
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const App: React.FC = () => {
   useEffect(() => {
@@ -19,7 +19,10 @@ const App: React.FC = () => {
 
   return (
     <>
-      
+      {/* ✅ Navbar added so it shows on all pages */}
+      <Navbar />
+
+      {/* ✅ Routes for pages */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/search" element={<SearchFlights />} />
