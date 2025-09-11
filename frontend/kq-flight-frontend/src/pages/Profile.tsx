@@ -7,21 +7,38 @@ import "./Profile.css";
 
 const contractAddress = "0xYourContractAddressHere";
 
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
+
 const Profile: React.FC = () => {
-  const [account, setAccount] = useState("");
-  const [balance, setBalance] = useState("0");
+  const [account, setAccount] = useState<string>("");
+  const [balance, setBalance] = useState<string>("0");
   const [claimCooldown, setClaimCooldown] = useState<number | null>(null);
-  const [isClaimed, setIsClaimed] = useState(false);
+  const [isClaimed, setIsClaimed] = useState<boolean>(false);
   const [p2pRequests, setP2pRequests] = useState<any[]>([]);
-  const [user, setUser] = useState<any>(null); // ✅ MySQL user info
+  const [user, setUser] = useState<any>(null);
+  const [recipient, setRecipient] = useState("");
+  const [amount, setAmount] = useState("");
+  const [p2pAmount, setP2pAmount] = useState("");
 
-  const provider = new ethers.BrowserProvider((window as any).ethereum);
-  const contract = new ethers.Contract(contractAddress, kqcoinAbi, provider);
+  const [provider, setProvider] = useState<ethers.BrowserProvider>();
+  const [contract, setContract] = useState<ethers.Contract>();
 
-  /** 🔹 Fetch user profile from backend (MySQL) */
+  /** Initialize provider + contract */
+  useEffect(() => {
+    if (!window.ethereum) return;
+    const prov = new ethers.BrowserProvider(window.ethereum);
+    setProvider(prov);
+    setContract(new ethers.Contract(contractAddress, kqcoinAbi, prov));
+  }, []);
+
+  /** Fetch user profile from backend (MySQL) */
   const fetchUserProfile = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/user/1"); // adjust endpoint
+      const res = await fetch("http://localhost:5000/api/user/1");
       const data = await res.json();
       setUser(data);
     } catch (err) {
@@ -29,24 +46,25 @@ const Profile: React.FC = () => {
     }
   };
 
-  /** 🔹 Connect Metamask */
+  /** Connect MetaMask */
   const connectWallet = async () => {
-    if (!(window as any).ethereum) return alert("Install MetaMask!");
-    const [addr] = await (window as any).ethereum.request({
+    if (!window.ethereum) return alert("Install MetaMask!");
+    const [addr] = await window.ethereum.request({
       method: "eth_requestAccounts",
     });
     setAccount(addr);
   };
 
-  /** 🔹 Fetch blockchain balance */
+  /** Fetch blockchain balance */
   const fetchBalance = async () => {
-    if (!account) return;
+    if (!account || !contract) return;
     const bal = await contract.getBalance(account);
     setBalance(ethers.formatEther(bal));
   };
 
-  /** 🔹 Claim tokens */
+  /** Claim tokens */
   const claimTokens = async () => {
+    if (!provider || !contract) return;
     try {
       const signer = await provider.getSigner();
       const contractWithSigner = contract.connect(signer);
@@ -58,8 +76,9 @@ const Profile: React.FC = () => {
     }
   };
 
-  /** 🔹 Send tokens */
-  const sendTokens = async (recipient: string, amount: string) => {
+  /** Send tokens */
+  const sendTokens = async () => {
+    if (!provider || !contract || !recipient || !amount) return;
     try {
       const signer = await provider.getSigner();
       const contractWithSigner = contract.connect(signer);
@@ -69,13 +88,16 @@ const Profile: React.FC = () => {
       );
       await tx.wait();
       fetchBalance();
+      setRecipient("");
+      setAmount("");
     } catch (err) {
       console.error("Send failed", err);
     }
   };
 
-  /** 🔹 Redeem tokens */
+  /** Redeem tokens */
   const redeemTokens = async () => {
+    if (!provider || !contract) return;
     try {
       const signer = await provider.getSigner();
       const contractWithSigner = contract.connect(signer);
@@ -87,23 +109,26 @@ const Profile: React.FC = () => {
     }
   };
 
-  /** 🔹 Submit P2P request */
-  const submitP2PRequest = async (amount: string) => {
+  /** Submit P2P request */
+  const submitP2PRequest = async () => {
+    if (!provider || !contract || !p2pAmount) return;
     try {
       const signer = await provider.getSigner();
       const contractWithSigner = contract.connect(signer);
       const tx = await contractWithSigner.requestP2PTrade(
-        ethers.parseEther(amount)
+        ethers.parseEther(p2pAmount)
       );
       await tx.wait();
       fetchP2PRequests();
+      setP2pAmount("");
     } catch (err) {
       console.error("P2P request failed", err);
     }
   };
 
-  /** 🔹 Fetch P2P requests */
+  /** Fetch P2P requests */
   const fetchP2PRequests = async () => {
+    if (!contract) return;
     try {
       const requests = await contract.getP2PRequests();
       setP2pRequests(requests);
@@ -112,8 +137,9 @@ const Profile: React.FC = () => {
     }
   };
 
-  /** 🔹 Accept request */
+  /** Accept P2P request */
   const acceptP2PRequest = async (requestId: number) => {
+    if (!provider || !contract) return;
     try {
       const signer = await provider.getSigner();
       const contractWithSigner = contract.connect(signer);
@@ -125,10 +151,10 @@ const Profile: React.FC = () => {
     }
   };
 
-  /** �� Hooks */
+  // --- Effects ---
   useEffect(() => {
     connectWallet();
-    fetchUserProfile(); // ✅ load user from MySQL
+    fetchUserProfile();
   }, []);
 
   useEffect(() => {
@@ -136,7 +162,7 @@ const Profile: React.FC = () => {
       fetchBalance();
       fetchP2PRequests();
     }
-  }, [account]);
+  }, [account, contract]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -158,10 +184,14 @@ const Profile: React.FC = () => {
           className="profile-avatar"
         />
         <h2>
-          {user ? user.name : account ? account.slice(0, 6) + "..." + account.slice(-4) : "Guest"}
+          {user
+            ? user.name
+            : account
+            ? account.slice(0, 6) + "..." + account.slice(-4)
+            : "Guest"}
         </h2>
         <p className="status">🟢 Online</p>
-        <QRCode value={account || "guest"} size={100} className="qrcode" />
+        <QRCodeCanvas value={account || "guest"} size={100} className="qrcode" />
         <p className="balance">Balance: {balance} KQCoin</p>
       </div>
 
@@ -170,21 +200,25 @@ const Profile: React.FC = () => {
         <h3>Wallet Overview</h3>
         <button className="claim-btn" onClick={claimTokens} disabled={isClaimed}>
           {isClaimed && claimCooldown
-            ? `Next claim in ${Math.ceil((claimCooldown - Date.now()) / 1000 / 60)} mins`
+            ? `Next claim in ${Math.ceil(
+                (claimCooldown - Date.now()) / 1000 / 60
+              )} mins`
             : "Claim 20 KQCoin"}
         </button>
         <div className="wallet-actions">
-          <input type="text" id="recipient" placeholder="Recipient Address" />
-          <input type="text" id="amount" placeholder="Amount" />
-          <button
-            onClick={() => {
-              const recipient = (document.getElementById("recipient") as HTMLInputElement).value;
-              const amount = (document.getElementById("amount") as HTMLInputElement).value;
-              sendTokens(recipient, amount);
-            }}
-          >
-            Send
-          </button>
+          <input
+            type="text"
+            placeholder="Recipient Address"
+            value={recipient}
+            onChange={(e) => setRecipient(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+          />
+          <button onClick={sendTokens}>Send</button>
           <button onClick={redeemTokens}>Redeem</button>
         </div>
       </div>
@@ -192,15 +226,13 @@ const Profile: React.FC = () => {
       {/* P2P Marketplace */}
       <div className="p2p-card">
         <h3>P2P Marketplace</h3>
-        <input type="text" id="p2pAmount" placeholder="Amount to Request" />
-        <button
-          onClick={() => {
-            const amount = (document.getElementById("p2pAmount") as HTMLInputElement).value;
-            submitP2PRequest(amount);
-          }}
-        >
-          Submit Request
-        </button>
+        <input
+          type="text"
+          placeholder="Amount to Request"
+          value={p2pAmount}
+          onChange={(e) => setP2pAmount(e.target.value)}
+        />
+        <button onClick={submitP2PRequest}>Submit Request</button>
         <ul>
           {p2pRequests.map((req: any, idx: number) => (
             <li key={idx}>
